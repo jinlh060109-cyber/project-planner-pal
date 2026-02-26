@@ -1,73 +1,80 @@
 
 
-# SWOT Planner — Implementation Plan
+# Onboarding Step 1 — Implementation Plan
 
-## Phase 1: Foundation & Authentication
+## Summary
 
-### User Accounts
-- Sign up / login page with email & password
-- User profiles table to store the personal SWOT portfolio data
-- Protected routes — only authenticated users access the dashboard
+Build the first onboarding screen that appears after registration. It collects the user's role/situation and optional north star objective, using the established clean & minimal design system.
 
----
+## Database
 
-## Phase 2: Personal SWOT Portfolio (Simplified Onboarding)
+The `profiles` table already has `onboarding_completed` (boolean). We need two new columns to store Step 1 data:
 
-### Quick Setup Flow
-- A guided onboarding after first login: user enters their **strengths, weaknesses, opportunities, and threats** as free-text items
-- Optional **north star objective** — a single high-level life goal
-- Optional **skill profiles** (up to 2 for free tier) — specific skills being developed
-- Portfolio saved to the database, editable anytime from a settings/profile page
+- **`current_role`** (text, nullable) — stores the user's role/life situation
+- **`north_star`** (text, nullable) — stores the optional north star objective
 
----
+A migration will add these columns.
 
-## Phase 3: Daily Dashboard & Task Input (Core Experience)
+## Routing & Flow
 
-### Four-Quadrant Dashboard
-- **Visual grid layout** showing Strength, Weakness, Opportunity, and Threat quadrants with distinct subtle color coding
-- Each quadrant shows today's tasks with completion checkboxes
-- **Balance indicator** — a simple visual (e.g., a donut chart or bar) showing task distribution across quadrants
-- Imbalance nudges: if one quadrant dominates, show a gentle message
+- New route: `/onboarding` — renders the `Onboarding` page
+- **ProtectedRoute** updated: after auth check, also query the user's profile. If `onboarding_completed` is `false`, redirect to `/onboarding` instead of showing the dashboard.
+- The `/onboarding` route itself is also protected (requires auth).
 
-### Natural Language Task Input
-- Single text input at the top — user types a task in plain language
-- Task is created and placed into a quadrant (initially manual selection, AI classification wired up later)
-- Each task shows its quadrant assignment and a brief reasoning placeholder
-- User can **override/reassign** any task to a different quadrant via drag or dropdown
-- Tasks can be marked complete, edited, or deleted
+## New Files
 
-### AI Classification (Prepared for Integration)
-- Architecture ready for an edge function that calls an external AI API (Minimax, Kimi, etc.)
-- The edge function will receive the task text + user's portfolio context and return a quadrant + reasoning
-- For now, a manual quadrant picker serves as fallback until the AI provider is connected
+### `src/pages/Onboarding.tsx`
 
----
+Single-page component for Step 1 with the following structure:
 
-## Phase 4: Task History & Weekly View
+```text
+┌─────────────────────────────────────┐
+│  ← (greyed out)     [Step 1 of 2]  │
+│                                     │
+│   Let's build your strategic        │
+│   profile                           │
+│                                     │
+│   This takes 3 minutes...           │
+│                                     │
+│   ┌─────────────────────────────┐   │
+│   │ What's your current role... │   │
+│   └─────────────────────────────┘   │
+│                                     │
+│   ┌─────────────────────────────┐   │
+│   │ What's your north star...   │   │
+│   └─────────────────────────────┘   │
+│                                     │
+│              [Continue →]           │
+└─────────────────────────────────────┘
+```
 
-### History
-- View past days' tasks grouped by date
-- Filter by quadrant or completion status
+**Design details:**
+- Centered card on desktop (max-width 520px), full-bleed on mobile
+- 40px vertical padding inside card
+- DM Serif Display for heading, DM Sans for body
+- Background: `bg-background`, card: `bg-card`
+- Progress pill: `bg-muted text-muted-foreground` badge, top-right
+- Back arrow: `ArrowLeft` from lucide, greyed out (`text-muted-foreground/40`) on Step 1
+- Inputs: full-width, use existing `Input` component with custom focus styling (`focus-visible:ring-indigo-500` matching `#6366F1`)
+- Validation state: red border + helper text on empty role field when submit attempted
+- Filled state: `Check` icon from lucide rendered inside a wrapper on the right side of the input
+- CTA: indigo button (`bg-[#6366F1] hover:bg-[#5558E6]`), full-width on mobile, right-aligned on desktop
+- Enter key on north star field triggers submit
+- "Continue" saves `current_role` and `north_star` to the `profiles` table via upsert, then navigates to `/onboarding/step2` (placeholder — just navigates, page doesn't exist yet)
 
-### Weekly Strategic Report (Basic)
-- Summary view of the past 7 days: tasks completed per quadrant, balance trend
-- Simple chart showing quadrant distribution over the week
+## Edited Files
 
----
+### `src/App.tsx`
+- Add `/onboarding` route pointing to `Onboarding`, wrapped in `ProtectedRoute`
 
-## Design Direction
+### `src/components/ProtectedRoute.tsx`
+- After confirming user is authenticated, fetch their profile
+- If `onboarding_completed === false` and current path is not `/onboarding`, redirect to `/onboarding`
+- If `onboarding_completed === true` and current path is `/onboarding`, redirect to `/dashboard`
 
-- **Clean & minimal** — generous white space, light background
-- Each quadrant has a **soft pastel accent color** (e.g., blue for Strength, amber for Weakness, green for Opportunity, red for Threat)
-- Clear typography hierarchy — the quadrant names and task text are the stars
-- Mobile-responsive layout — quadrants stack vertically on small screens
+## Technical Notes
 
----
-
-## Technical Approach
-
-- **Lovable Cloud** (Supabase) for database, auth, and edge functions
-- Tables: `profiles`, `swot_items` (portfolio), `skills`, `tasks`, `objectives`
-- Edge function ready for AI classification API calls
-- Row-level security so each user only sees their own data
+- The indigo accent (`#6366F1`) is specified in the design spec for the CTA and input focus. This will be applied via Tailwind arbitrary values rather than adding a new design token, keeping the design system clean.
+- No new dependencies required — uses existing `Input`, `Button`, `Badge`, `Card` components plus lucide icons.
+- The profile query in `ProtectedRoute` uses the existing Supabase client and the user's auth session.
 
