@@ -85,7 +85,7 @@ const Onboarding = () => {
                   id="role"
                   value={roleSituation}
                   onChange={(e) => setRoleSituation(e.target.value)}
-                  placeholder="e.g. Business student + managing a bar in Barcelona"
+                  placeholder="e.g. Business Student, Software Engineer"
                   className={`pr-10 transition-colors duration-200 focus-visible:ring-[#6366F1] ${
                     attempted && !roleValid
                       ? "border-destructive focus-visible:ring-destructive"
