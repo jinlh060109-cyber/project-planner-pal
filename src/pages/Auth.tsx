@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Shield, TrendingUp, Target, AlertTriangle } from "lucide-react";
+import { lovable } from "@/integrations/lovable/index";
 
 const Auth = () => {
   const { user, loading } = useAuth();
