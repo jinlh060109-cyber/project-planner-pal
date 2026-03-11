@@ -28,16 +28,20 @@ const Index = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-2xl mx-auto">
+          <div className="flex justify-center gap-3 mt-16">
             {[
-              { label: "Strengths", icon: Shield, bg: "bg-strength", text: "text-strength-accent" },
-              { label: "Weaknesses", icon: Target, bg: "bg-weakness", text: "text-weakness-accent" },
-              { label: "Opportunities", icon: TrendingUp, bg: "bg-opportunity", text: "text-opportunity-accent" },
-              { label: "Threats", icon: AlertTriangle, bg: "bg-threat", text: "text-threat-accent" },
-            ].map(({ label, icon: Icon, bg, text }) => (
-              <div key={label} className={`${bg} rounded-xl p-5 text-center`}>
-                <Icon className={`h-6 w-6 mx-auto mb-2 ${text}`} />
-                <span className="text-sm font-medium">{label}</span>
+              { label: "Strengths", icon: Shield, borderColor: "border-l-[hsl(142,71%,45%)]", tint: "bg-[hsl(142,71%,45%,0.05)]" },
+              { label: "Weaknesses", icon: Target, borderColor: "border-l-[hsl(38,92%,50%)]", tint: "bg-[hsl(38,92%,50%,0.05)]" },
+              { label: "Opportunities", icon: TrendingUp, borderColor: "border-l-[hsl(217,91%,60%)]", tint: "bg-[hsl(217,91%,60%,0.05)]" },
+              { label: "Threats", icon: AlertTriangle, borderColor: "border-l-[hsl(0,84%,60%)]", tint: "bg-[hsl(0,84%,60%,0.05)]" },
+            ].map(({ label, icon: Icon, borderColor, tint }) => (
+              <div
+                key={label}
+                className={`${tint} ${borderColor} border-l-4 bg-card rounded-xl p-5 text-center h-[140px] w-full max-w-[160px] flex flex-col items-center justify-center`}
+                style={{ borderRadius: 12 }}
+              >
+                <Icon className="h-6 w-6 mb-2 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">{label}</span>
               </div>
             ))}
           </div>
