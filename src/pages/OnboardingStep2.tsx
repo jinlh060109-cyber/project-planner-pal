@@ -154,7 +154,7 @@ const OnboardingStep2 = () => {
             </div>
           </div>
 
-          <Separator className="my-8" />
+          <div className="my-8 h-px bg-[hsl(228,12%,19%)]" />
 
           {/* Weaknesses Section */}
           <div className="space-y-4">
