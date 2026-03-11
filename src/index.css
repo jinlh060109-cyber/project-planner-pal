@@ -6,48 +6,48 @@
 
 @layer base {
   :root {
-    --background: 40 20% 98%;
-    --foreground: 220 20% 14%;
+    --background: 228 24% 7%;
+    --foreground: 240 5% 96%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 14%;
+    --card: 228 18% 13%;
+    --card-foreground: 240 5% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 14%;
+    --popover: 228 18% 13%;
+    --popover-foreground: 240 5% 96%;
 
-    --primary: 220 20% 14%;
-    --primary-foreground: 40 20% 98%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 15% 94%;
-    --secondary-foreground: 220 20% 14%;
+    --secondary: 228 15% 18%;
+    --secondary-foreground: 240 5% 96%;
 
-    --muted: 40 10% 93%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 228 12% 18%;
+    --muted-foreground: 240 4% 48%;
 
-    --accent: 40 15% 94%;
-    --accent-foreground: 220 20% 14%;
+    --accent: 228 15% 18%;
+    --accent-foreground: 240 5% 96%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 10% 88%;
-    --input: 40 10% 88%;
-    --ring: 220 20% 14%;
+    --border: 228 12% 19%;
+    --input: 228 12% 19%;
+    --ring: 239 84% 67%;
 
     --radius: 0.625rem;
 
     /* SWOT quadrant colors */
-    --strength: 210 60% 92%;
-    --strength-accent: 210 60% 50%;
-    --weakness: 35 70% 92%;
-    --weakness-accent: 35 70% 50%;
-    --opportunity: 145 45% 90%;
-    --opportunity-accent: 145 45% 42%;
-    --threat: 0 60% 93%;
-    --threat-accent: 0 60% 55%;
+    --strength: 142 71% 45%;
+    --strength-accent: 142 71% 45%;
+    --weakness: 38 92% 50%;
+    --weakness-accent: 38 92% 50%;
+    --opportunity: 217 91% 60%;
+    --opportunity-accent: 217 91% 60%;
+    --threat: 0 84% 60%;
+    --threat-accent: 0 84% 60%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-background: 228 18% 13%;
+    --sidebar-foreground: 240 5% 96%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
