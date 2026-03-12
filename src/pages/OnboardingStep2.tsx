@@ -85,6 +85,7 @@ const OnboardingStep2 = () => {
       return;
     }
 
+    await queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
     navigate("/dashboard");
   };
 
