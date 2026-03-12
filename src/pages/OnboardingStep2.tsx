@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 const OnboardingStep2 = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { toast } = useToast();
 
   const [strengths, setStrengths] = useState(["", ""]);
