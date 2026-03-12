@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 const OnboardingStep2 = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const [strengths, setStrengths] = useState(["", ""]);
@@ -83,6 +85,7 @@ const OnboardingStep2 = () => {
       return;
     }
 
+    await queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
     navigate("/dashboard");
   };
 
