@@ -123,7 +123,7 @@ const OnboardingStep2 = () => {
               variant="secondary"
               className="bg-muted text-muted-foreground text-xs font-medium"
             >
-              Step 2 of 2
+              Step 2 of 3
             </Badge>
           </div>
 
