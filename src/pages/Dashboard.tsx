@@ -1,24 +1,86 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Plus, Loader2 } from "lucide-react";
+import { LogOut, Plus, Loader2, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 type Quadrant = "strength" | "weakness" | "opportunity" | "threat";
 
-const QUADRANT_CONFIG: Record<Quadrant, { letter: string; label: string; borderColor: string; bgTint: string; emptyText: string }> = {
-  strength: { letter: "S", label: "Strengths", borderColor: "border-l-[hsl(142,71%,45%)]", bgTint: "bg-[hsl(142,71%,45%,0.05)]", emptyText: "Add a task that builds your strengths" },
-  weakness: { letter: "W", label: "Weaknesses", borderColor: "border-l-[hsl(38,92%,50%)]", bgTint: "bg-[hsl(38,92%,50%,0.05)]", emptyText: "Add a task that closes a gap" },
-  opportunity: { letter: "O", label: "Opportunities", borderColor: "border-l-[hsl(217,91%,60%)]", bgTint: "bg-[hsl(217,91%,60%,0.05)]", emptyText: "Add a task that captures an opportunity" },
-  threat: { letter: "T", label: "Threats", borderColor: "border-l-[hsl(0,84%,60%)]", bgTint: "bg-[hsl(0,84%,60%,0.05)]", emptyText: "Add a task that protects your position" },
+interface Task {
+  id: string;
+  content: string;
+  quadrant: Quadrant;
+  reasoning: string | null;
+  priority: string;
+  is_completed: boolean;
+  created_at: string;
+}
+
+const QUADRANT_CONFIG: Record<
+  Quadrant,
+  {
+    letter: string;
+    label: string;
+    borderColor: string;
+    bgTint: string;
+    emptyText: string;
+    accentHsl: string;
+    checkColor: string;
+  }
+> = {
+  strength: {
+    letter: "S",
+    label: "Strengths",
+    borderColor: "border-l-[hsl(var(--strength))]",
+    bgTint: "bg-[hsl(142,71%,45%,0.05)]",
+    emptyText: "Add a task that builds your strengths",
+    accentHsl: "142 71% 45%",
+    checkColor: "bg-[hsl(var(--strength))]",
+  },
+  weakness: {
+    letter: "W",
+    label: "Weaknesses",
+    borderColor: "border-l-[hsl(var(--weakness))]",
+    bgTint: "bg-[hsl(38,92%,50%,0.05)]",
+    emptyText: "Add a task that closes a gap",
+    accentHsl: "38 92% 50%",
+    checkColor: "bg-[hsl(var(--weakness))]",
+  },
+  opportunity: {
+    letter: "O",
+    label: "Opportunities",
+    borderColor: "border-l-[hsl(var(--opportunity))]",
+    bgTint: "bg-[hsl(217,91%,60%,0.05)]",
+    emptyText: "Add a task that captures an opportunity",
+    accentHsl: "217 91% 60%",
+    checkColor: "bg-[hsl(var(--opportunity))]",
+  },
+  threat: {
+    letter: "T",
+    label: "Threats",
+    borderColor: "border-l-[hsl(var(--threat))]",
+    bgTint: "bg-[hsl(0,84%,60%,0.05)]",
+    emptyText: "Add a task that protects your position",
+    accentHsl: "0 84% 60%",
+    checkColor: "bg-[hsl(var(--threat))]",
+  },
 };
 
 const DOT_COLORS: Record<Quadrant, string> = {
-  strength: "bg-[hsl(142,71%,45%)]",
-  weakness: "bg-[hsl(38,92%,50%)]",
-  opportunity: "bg-[hsl(217,91%,60%)]",
-  threat: "bg-[hsl(0,84%,60%)]",
+  strength: "bg-[hsl(var(--strength))]",
+  weakness: "bg-[hsl(var(--weakness))]",
+  opportunity: "bg-[hsl(var(--opportunity))]",
+  threat: "bg-[hsl(var(--threat))]",
+};
+
+const PRIORITY_STYLES: Record<string, { bg: string; text: string }> = {
+  High: { bg: "bg-[hsl(0,84%,60%,0.15)]", text: "text-[hsl(0,84%,60%)]" },
+  Medium: { bg: "bg-[hsl(38,92%,50%,0.15)]", text: "text-[hsl(38,92%,50%)]" },
+  Low: { bg: "bg-[hsl(142,71%,45%,0.15)]", text: "text-[hsl(142,71%,45%)]" },
 };
 
 const today = new Date();
@@ -29,38 +91,122 @@ const formattedDate = today.toLocaleDateString("en-GB", {
 });
 
 const Dashboard = () => {
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
   const [taskInput, setTaskInput] = useState("");
   const [isClassifying, setIsClassifying] = useState(false);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [completingIds, setCompletingIds] = useState<Set<string>>(new Set());
 
-  const handleAddTask = () => {
-    if (!taskInput.trim()) return;
-    // Will be wired to AI classification in next step
-  };
+  // Fetch tasks on mount
+  useEffect(() => {
+    if (!user) return;
+    const fetchTasks = async () => {
+      const { data } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("is_completed", false)
+        .order("created_at", { ascending: false });
+      if (data) setTasks(data as Task[]);
+    };
+    fetchTasks();
+  }, [user]);
+
+  const handleAddTask = useCallback(async () => {
+    const text = taskInput.trim();
+    if (!text || isClassifying) return;
+
+    setTaskInput("");
+    setIsClassifying(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("classify-task", {
+        body: { taskContent: text },
+      });
+
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+
+      const newTask = data.task as Task;
+      setTasks((prev) => [newTask, ...prev]);
+
+      const config = QUADRANT_CONFIG[newTask.quadrant as Quadrant];
+      toast({
+        title: `Classified → ${config?.label || newTask.quadrant}`,
+        duration: 3000,
+      });
+    } catch (e: any) {
+      console.error("Classification error:", e);
+      toast({
+        title: "Classification failed — please try again",
+        description: e.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsClassifying(false);
+    }
+  }, [taskInput, isClassifying, toast]);
+
+  const handleCompleteTask = useCallback(
+    async (taskId: string) => {
+      setCompletingIds((prev) => new Set(prev).add(taskId));
+
+      await supabase
+        .from("tasks")
+        .update({ is_completed: true })
+        .eq("id", taskId);
+
+      // Wait for fade animation
+      setTimeout(() => {
+        setTasks((prev) => prev.filter((t) => t.id !== taskId));
+        setCompletingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(taskId);
+          return next;
+        });
+      }, 800);
+    },
+    []
+  );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+    if (e.key === "Enter" || ((e.metaKey || e.ctrlKey) && e.key === "Enter")) {
+      e.preventDefault();
       handleAddTask();
     }
   };
+
+  const tasksByQuadrant = (q: Quadrant) =>
+    tasks.filter((t) => t.quadrant === q);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top bar */}
       <header className="border-b border-border px-6 py-4 flex items-center justify-between shrink-0">
-        <h1 className="text-xl font-display font-bold text-foreground">Today's Strategy</h1>
+        <h1 className="text-xl font-display font-bold text-foreground">
+          Today's Strategy
+        </h1>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-muted-foreground hidden sm:block">{formattedDate}</span>
-          <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground">
+          <span className="text-sm text-muted-foreground hidden sm:block">
+            {formattedDate}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={signOut}
+            className="text-muted-foreground"
+          >
             <LogOut className="h-4 w-4" />
           </Button>
         </div>
       </header>
 
       {/* Quadrant grid */}
-      <main className="flex-1 p-4 grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0">
+      <main className="flex-1 p-4 grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0 overflow-auto">
         {(Object.keys(QUADRANT_CONFIG) as Quadrant[]).map((q) => {
           const config = QUADRANT_CONFIG[q];
+          const qTasks = tasksByQuadrant(q);
           return (
             <div
               key={q}
@@ -74,12 +220,75 @@ const Dashboard = () => {
                 </span>
               </div>
 
-              {/* Empty state */}
-              <div className="flex-1 flex items-center justify-center border border-dashed border-border rounded-lg">
-                <p className="text-sm text-muted-foreground italic">
-                  {config.emptyText}
-                </p>
-              </div>
+              {/* Task cards or empty state */}
+              {qTasks.length === 0 ? (
+                <div className="flex-1 flex items-center justify-center border border-dashed border-border rounded-lg">
+                  <p className="text-sm text-muted-foreground italic">
+                    {config.emptyText}
+                  </p>
+                </div>
+              ) : (
+                <div className="flex-1 flex flex-col gap-2 overflow-auto">
+                  {qTasks.map((task) => {
+                    const isCompleting = completingIds.has(task.id);
+                    const priority = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.Medium;
+                    return (
+                      <div
+                        key={task.id}
+                        className={cn(
+                          "group relative rounded-xl border-l-4 bg-card p-4 shadow-sm transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5",
+                          config.borderColor,
+                          isCompleting && "opacity-50 line-through transition-opacity duration-700"
+                        )}
+                      >
+                        <div className="flex items-start gap-3">
+                          {/* Checkbox */}
+                          <button
+                            onClick={() => handleCompleteTask(task.id)}
+                            disabled={isCompleting}
+                            className={cn(
+                              "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-muted-foreground/30 transition-colors",
+                              isCompleting && config.checkColor + " border-transparent"
+                            )}
+                          >
+                            {isCompleting && (
+                              <Check className="h-3 w-3 text-primary-foreground" />
+                            )}
+                          </button>
+
+                          {/* Text */}
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className={cn(
+                                "text-sm font-semibold text-foreground",
+                                isCompleting && "line-through"
+                              )}
+                            >
+                              {task.content}
+                            </p>
+                            {task.reasoning && (
+                              <p className="mt-1 text-[13px] text-muted-foreground leading-snug">
+                                {task.reasoning}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Priority badge */}
+                          <span
+                            className={cn(
+                              "shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium",
+                              priority.bg,
+                              priority.text
+                            )}
+                          >
+                            {task.priority}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}
@@ -94,7 +303,7 @@ const Dashboard = () => {
               onChange={(e) => setTaskInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="What do you need to do today?"
-              className="pr-20 transition-colors duration-200 focus-visible:ring-[hsl(239,84%,67%)]"
+              className="pr-20 transition-colors duration-200 focus-visible:ring-primary"
               disabled={isClassifying}
             />
             <Badge
