@@ -69,17 +69,19 @@ const Auth = () => {
         </p>
         <div className="grid grid-cols-2 gap-4 max-w-sm">
           {[
-            { label: "Strengths", icon: Shield, color: "hsl(142,71%,45%)" },
-            { label: "Weaknesses", icon: Target, color: "hsl(38,92%,50%)" },
-            { label: "Opportunities", icon: TrendingUp, color: "hsl(217,91%,60%)" },
-            { label: "Threats", icon: AlertTriangle, color: "hsl(0,84%,60%)" },
+            { label: "Strengths", icon: Shield, color: "142,71%,45%", },
+            { label: "Weaknesses", icon: Target, color: "38,92%,50%", },
+            { label: "Opportunities", icon: TrendingUp, color: "217,91%,60%", },
+            { label: "Threats", icon: AlertTriangle, color: "0,84%,60%", },
           ].map(({ label, icon: Icon, color }) => (
             <div
               key={label}
               className="flex flex-col items-center justify-center gap-2 p-4"
               style={{
-                background: `linear-gradient(${color}0D, ${color}0D), hsl(230,14%,12%)`,
-                borderLeft: `4px solid ${color}`,
+                background: `hsla(${color}, 0.05)`,
+                backgroundColor: 'hsl(230,14%,12%)',
+                backgroundBlendMode: 'normal',
+                borderLeft: `4px solid hsl(${color})`,
                 borderRadius: 12,
               }}
             >
