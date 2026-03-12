@@ -53,7 +53,7 @@ serve(async (req) => {
     const opportunities = swotItems.filter((i: any) => i.quadrant === "opportunity").map((i: any) => i.content);
     const threats = swotItems.filter((i: any) => i.quadrant === "threat").map((i: any) => i.content);
 
-    const systemPrompt = `You are a Strategic Life Analyst. Classify daily tasks into SWOT quadrants based on the user's personal strategic profile.
+    const systemPrompt = `You are a Strategic Life Analyst. Your sole job is to classify a task into exactly ONE SWOT quadrant based strictly on the user's personal profile below.
 
 USER PROFILE:
 - Role: ${profile?.role_situation || "Not specified"}
@@ -63,13 +63,40 @@ USER PROFILE:
 - Opportunities: ${opportunities.length ? opportunities.join(", ") : "None specified"}
 - Threats: ${threats.length ? threats.join(", ") : "None specified"}
 
-CLASSIFICATION RULES:
-- strength: Builds or exercises a capability the user is developing
-- weakness: Directly addresses something holding the user back
-- opportunity: External circumstance requiring timely action
-- threat: Prevents external risk from damaging progress
+CLASSIFICATION RULES — read carefully before deciding:
 
-Return ONLY valid JSON. No preamble, no explanation outside the JSON.`;
+S (Strength): The task directly builds or exercises a capability listed in the user's Strengths. The primary benefit is skill development or compounding a natural advantage.
+DISQUALIFY if the task is primarily defensive or reactive.
+
+W (Weakness): The task directly confronts something listed in the user's Weaknesses. The primary benefit is closing a personal gap.
+DISQUALIFY if the task is driven by an external deadline or risk.
+
+O (Opportunity): The task captures a time-sensitive external circumstance listed in the user's Opportunities. The primary driver is external conditions, not internal development.
+DISQUALIFY if the benefit is primarily internal skill growth.
+
+T (Threat): The task neutralizes or prevents an external risk listed in the user's Threats. The primary driver is protection, not growth.
+DISQUALIFY if the task primarily builds capability.
+
+TIEBREAKER RULE: If a task fits multiple quadrants, choose the quadrant whose profile item is most SPECIFICALLY referenced. Vague connections do not count. If still tied, prefer W over S, T over O.
+
+REASONING RULES — strictly follow these:
+1. Your reasoning MUST reference a specific item from the profile (name the actual strength, weakness, opportunity, or threat).
+2. NEVER end reasoning with a reference to the north star objective unless the connection is direct and explicit.
+3. The north star objective is context only — mention it maximum once, only if genuinely relevant.
+4. Reasoning must be exactly 1 sentence. No more.
+5. Start reasoning with the profile item, not the task description.
+
+Return ONLY valid JSON, no preamble:
+{
+  "quadrant": "S" | "W" | "O" | "T",
+  "reasoning": "One sentence starting with the specific profile item",
+  "priority": "High" | "Medium" | "Low"
+}
+
+PRIORITY RULES:
+- High: time-sensitive OR directly blocks/enables a core goal
+- Medium: important but not urgent
+- Low: beneficial but deferrable`;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -105,12 +132,12 @@ Return ONLY valid JSON. No preamble, no explanation outside the JSON.`;
                   properties: {
                     quadrant: {
                       type: "string",
-                      enum: ["strength", "weakness", "opportunity", "threat"],
+                      enum: ["S", "W", "O", "T"],
                     },
                     reasoning: {
                       type: "string",
                       description:
-                        "One sentence referencing something specific from the user profile.",
+                        "One sentence starting with the specific profile item.",
                     },
                     priority: {
                       type: "string",
@@ -170,14 +197,16 @@ Return ONLY valid JSON. No preamble, no explanation outside the JSON.`;
       );
     }
 
-    // Validate quadrant value
-    const validQuadrants = ["strength", "weakness", "opportunity", "threat"];
-    if (!validQuadrants.includes(classification.quadrant)) {
+    // Map short codes to full quadrant names
+    const quadrantMap: Record<string, string> = { S: "strength", W: "weakness", O: "opportunity", T: "threat" };
+    const mappedQuadrant = quadrantMap[classification.quadrant];
+    if (!mappedQuadrant) {
       return new Response(
         JSON.stringify({ error: "Classification failed — invalid quadrant" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    classification.quadrant = mappedQuadrant;
 
     // Insert task
     const { data: task, error: insertError } = await supabase
