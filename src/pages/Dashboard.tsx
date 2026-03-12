@@ -77,7 +77,7 @@ const Dashboard = () => {
               {/* Empty state */}
               <div className="flex-1 flex items-center justify-center border border-dashed border-border rounded-lg">
                 <p className="text-sm text-muted-foreground italic">
-                  No {config.emptyLabel} tasks yet
+                  {config.emptyText}
                 </p>
               </div>
             </div>
