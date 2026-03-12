@@ -132,12 +132,12 @@ PRIORITY RULES:
                   properties: {
                     quadrant: {
                       type: "string",
-                      enum: ["strength", "weakness", "opportunity", "threat"],
+                      enum: ["S", "W", "O", "T"],
                     },
                     reasoning: {
                       type: "string",
                       description:
-                        "One sentence referencing something specific from the user profile.",
+                        "One sentence starting with the specific profile item.",
                     },
                     priority: {
                       type: "string",
