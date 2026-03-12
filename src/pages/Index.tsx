@@ -30,15 +30,19 @@ const Index = () => {
 
           <div className="flex justify-center gap-3 mt-16">
             {[
-              { label: "Strengths", icon: Shield, borderColor: "border-l-[hsl(142,71%,45%)]", tint: "bg-[hsl(142,71%,45%,0.05)]" },
-              { label: "Weaknesses", icon: Target, borderColor: "border-l-[hsl(38,92%,50%)]", tint: "bg-[hsl(38,92%,50%,0.05)]" },
-              { label: "Opportunities", icon: TrendingUp, borderColor: "border-l-[hsl(217,91%,60%)]", tint: "bg-[hsl(217,91%,60%,0.05)]" },
-              { label: "Threats", icon: AlertTriangle, borderColor: "border-l-[hsl(0,84%,60%)]", tint: "bg-[hsl(0,84%,60%,0.05)]" },
-            ].map(({ label, icon: Icon, borderColor, tint }) => (
+              { label: "Strengths", icon: Shield, color: "hsl(var(--strength))" },
+              { label: "Weaknesses", icon: Target, color: "hsl(var(--weakness))" },
+              { label: "Opportunities", icon: TrendingUp, color: "hsl(var(--opportunity))" },
+              { label: "Threats", icon: AlertTriangle, color: "hsl(var(--threat))" },
+            ].map(({ label, icon: Icon, color }) => (
               <div
                 key={label}
-                className={`${tint} ${borderColor} border-l-4 bg-card rounded-xl p-5 text-center h-[140px] w-full max-w-[160px] flex flex-col items-center justify-center`}
-                style={{ borderRadius: 12 }}
+                className="rounded-xl p-5 text-center h-[140px] w-full max-w-[160px] flex flex-col items-center justify-center"
+                style={{
+                  borderRadius: 12,
+                  borderLeft: `4px solid ${color}`,
+                  backgroundColor: `color-mix(in srgb, ${color} 5%, hsl(var(--card)))`,
+                }}
               >
                 <Icon className="h-6 w-6 mb-2 text-muted-foreground" />
                 <span className="text-sm font-medium text-foreground">{label}</span>
