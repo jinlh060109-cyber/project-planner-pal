@@ -131,6 +131,7 @@ export type Database = {
           created_at: string
           id: string
           is_completed: boolean
+          priority: string
           quadrant: string
           reasoning: string | null
           task_date: string
@@ -142,6 +143,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_completed?: boolean
+          priority?: string
           quadrant: string
           reasoning?: string | null
           task_date?: string
@@ -153,6 +155,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_completed?: boolean
+          priority?: string
           quadrant?: string
           reasoning?: string | null
           task_date?: string
