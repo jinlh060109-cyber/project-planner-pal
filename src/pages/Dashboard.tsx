@@ -177,8 +177,11 @@ const Dashboard = () => {
     }
   };
 
+  const PRIORITY_ORDER: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
   const tasksByQuadrant = (q: Quadrant) =>
-    tasks.filter((t) => t.quadrant === q);
+    tasks
+      .filter((t) => t.quadrant === q)
+      .sort((a, b) => (PRIORITY_ORDER[a.priority] ?? 1) - (PRIORITY_ORDER[b.priority] ?? 1));
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
