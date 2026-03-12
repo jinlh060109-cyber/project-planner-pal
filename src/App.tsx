@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Onboarding from "./pages/Onboarding";
 import OnboardingStep2 from "./pages/OnboardingStep2";
+import OnboardingStep3 from "./pages/OnboardingStep3";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -37,6 +38,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <OnboardingStep2 />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/onboarding/step3"
+              element={
+                <ProtectedRoute>
+                  <OnboardingStep3 />
                 </ProtectedRoute>
               }
             />
