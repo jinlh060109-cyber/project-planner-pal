@@ -15,7 +15,6 @@ const OnboardingStep2 = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { toast } = useToast();
 
   const [strengths, setStrengths] = useState(["", ""]);
   const [weaknesses, setWeaknesses] = useState(["", ""]);
