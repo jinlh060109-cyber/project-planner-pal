@@ -197,14 +197,16 @@ PRIORITY RULES:
       );
     }
 
-    // Validate quadrant value
-    const validQuadrants = ["strength", "weakness", "opportunity", "threat"];
-    if (!validQuadrants.includes(classification.quadrant)) {
+    // Map short codes to full quadrant names
+    const quadrantMap: Record<string, string> = { S: "strength", W: "weakness", O: "opportunity", T: "threat" };
+    const mappedQuadrant = quadrantMap[classification.quadrant];
+    if (!mappedQuadrant) {
       return new Response(
         JSON.stringify({ error: "Classification failed — invalid quadrant" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    classification.quadrant = mappedQuadrant;
 
     // Insert task
     const { data: task, error: insertError } = await supabase
