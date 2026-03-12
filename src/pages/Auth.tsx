@@ -62,28 +62,31 @@ const Auth = () => {
       {/* Left side - branding */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-16 xl:px-24">
         <h1 className="text-5xl xl:text-6xl font-display leading-tight mb-6">
-          Plan with<br />clarity.
+          Align your day<br />with your strategy.
         </h1>
         <p className="text-lg text-muted-foreground mb-12 max-w-md">
-          Align your daily tasks with your strengths, weaknesses, opportunities, and threats.
+          Categorise daily tasks by Strengths, Weaknesses, Opportunities, and Threats — and build balance into every day.
         </p>
         <div className="grid grid-cols-2 gap-4 max-w-sm">
-          <div className="flex items-center gap-3 rounded-lg bg-strength p-3">
-            <Shield className="h-5 w-5 text-strength-accent" />
-            <span className="text-sm font-medium">Strengths</span>
-          </div>
-          <div className="flex items-center gap-3 rounded-lg bg-weakness p-3">
-            <Target className="h-5 w-5 text-weakness-accent" />
-            <span className="text-sm font-medium">Weaknesses</span>
-          </div>
-          <div className="flex items-center gap-3 rounded-lg bg-opportunity p-3">
-            <TrendingUp className="h-5 w-5 text-opportunity-accent" />
-            <span className="text-sm font-medium">Opportunities</span>
-          </div>
-          <div className="flex items-center gap-3 rounded-lg bg-threat p-3">
-            <AlertTriangle className="h-5 w-5 text-threat-accent" />
-            <span className="text-sm font-medium">Threats</span>
-          </div>
+          {[
+            { label: "Strengths", icon: Shield, color: "hsl(142,71%,45%)" },
+            { label: "Weaknesses", icon: Target, color: "hsl(38,92%,50%)" },
+            { label: "Opportunities", icon: TrendingUp, color: "hsl(217,91%,60%)" },
+            { label: "Threats", icon: AlertTriangle, color: "hsl(0,84%,60%)" },
+          ].map(({ label, icon: Icon, color }) => (
+            <div
+              key={label}
+              className="flex flex-col items-center justify-center gap-2 p-4"
+              style={{
+                background: `linear-gradient(${color}0D, ${color}0D), hsl(230,14%,12%)`,
+                borderLeft: `4px solid ${color}`,
+                borderRadius: 12,
+              }}
+            >
+              <Icon className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">{label}</span>
+            </div>
+          ))}
         </div>
       </div>
 
