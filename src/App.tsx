@@ -42,6 +42,14 @@ const App = () => (
               }
             />
             <Route
+              path="/onboarding/step3"
+              element={
+                <ProtectedRoute>
+                  <OnboardingStep3 />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/dashboard"
               element={
                 <ProtectedRoute>

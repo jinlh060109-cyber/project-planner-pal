@@ -2,52 +2,50 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 
-const OnboardingStep2 = () => {
+const OnboardingStep3 = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const [strengths, setStrengths] = useState(["", ""]);
-  const [weaknesses, setWeaknesses] = useState(["", ""]);
+  const [opportunities, setOpportunities] = useState(["", ""]);
+  const [threats, setThreats] = useState(["", ""]);
   const [saving, setSaving] = useState(false);
 
-  const updateStrength = (index: number, value: string) => {
-    setStrengths((prev) => prev.map((s, i) => (i === index ? value : s)));
+  const updateOpportunity = (index: number, value: string) => {
+    setOpportunities((prev) => prev.map((o, i) => (i === index ? value : o)));
   };
 
-  const updateWeakness = (index: number, value: string) => {
-    setWeaknesses((prev) => prev.map((w, i) => (i === index ? value : w)));
+  const updateThreat = (index: number, value: string) => {
+    setThreats((prev) => prev.map((t, i) => (i === index ? value : t)));
   };
 
   const handleSubmit = async () => {
     if (!user) return;
 
-    const filledStrengths = strengths.filter((s) => s.trim().length > 0);
-    const filledWeaknesses = weaknesses.filter((w) => w.trim().length > 0);
+    const filledOpportunities = opportunities.filter((o) => o.trim().length > 0);
+    const filledThreats = threats.filter((t) => t.trim().length > 0);
 
     setSaving(true);
 
-    // Insert SWOT items
     const swotItems = [
-      ...filledStrengths.map((content, i) => ({
+      ...filledOpportunities.map((content, i) => ({
         user_id: user.id,
-        quadrant: "strength" as const,
+        quadrant: "opportunity" as const,
         content: content.trim(),
         sort_order: i,
       })),
-      ...filledWeaknesses.map((content, i) => ({
+      ...filledThreats.map((content, i) => ({
         user_id: user.id,
-        quadrant: "weakness" as const,
+        quadrant: "threat" as const,
         content: content.trim(),
         sort_order: i,
       })),
@@ -69,7 +67,23 @@ const OnboardingStep2 = () => {
       }
     }
 
-    navigate("/onboarding/step3");
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({ onboarding_completed: true })
+      .eq("user_id", user.id);
+
+    if (profileError) {
+      toast({
+        title: "Error completing onboarding",
+        description: profileError.message,
+        variant: "destructive",
+      });
+      setSaving(false);
+      return;
+    }
+
+    await queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
+    navigate("/dashboard");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -79,14 +93,14 @@ const OnboardingStep2 = () => {
     }
   };
 
-  const strengthPlaceholders = [
-    "e.g. I'm disciplined about consistency",
-    "e.g. I understand how businesses operate",
+  const opportunityPlaceholders = [
+    "e.g. AI tools are creating demand for people who can build with them",
+    "e.g. My university network is full of potential early users",
   ];
 
-  const weaknessPlaceholders = [
-    "e.g. I avoid difficult conversations",
-    "e.g. I overthink before taking action",
+  const threatPlaceholders = [
+    "e.g. Job market is competitive for business graduates without technical skills",
+    "e.g. Limited time between university and bar work",
   ];
 
   return (
@@ -96,7 +110,7 @@ const OnboardingStep2 = () => {
           {/* Header row */}
           <div className="mb-8 flex items-center justify-between">
             <button
-              onClick={() => navigate("/onboarding")}
+              onClick={() => navigate("/onboarding/step2")}
               className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -106,59 +120,59 @@ const OnboardingStep2 = () => {
               variant="secondary"
               className="bg-muted text-muted-foreground text-xs font-medium"
             >
-              Step 2 of 3
+              Step 3 of 3
             </Badge>
           </div>
 
           {/* Heading */}
           <h1 className="font-display text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-            What are you working with?
+            What's your playing field?
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Be specific. 'Good communicator' is less useful than 'I can pitch
-            ideas clearly under pressure.'
+            Opportunities are external conditions working in your favor. Threats
+            are external risks to what you're building.
           </p>
 
-          {/* Strengths Section */}
+          {/* Opportunities Section */}
           <div className="mt-8 space-y-4">
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-[hsl(142,71%,45%)]" />
+              <div className="h-3 w-3 rounded-full bg-[hsl(var(--opportunity))]" />
               <Label className="text-sm font-medium text-foreground">
-                Your current strengths
+                Your current opportunities
               </Label>
             </div>
             <div className="space-y-4">
-              {strengths.map((value, index) => (
+              {opportunities.map((value, index) => (
                 <Input
-                  key={`strength-${index}`}
+                  key={`opportunity-${index}`}
                   value={value}
-                  onChange={(e) => updateStrength(index, e.target.value)}
-                  placeholder={strengthPlaceholders[index]}
-                  className="transition-colors duration-200 focus-visible:ring-[hsl(142,71%,45%)]"
+                  onChange={(e) => updateOpportunity(index, e.target.value)}
+                  placeholder={opportunityPlaceholders[index]}
+                  className="transition-colors duration-200 focus-visible:ring-[hsl(var(--opportunity))]"
                 />
               ))}
             </div>
           </div>
 
-          <div className="my-8 h-px bg-[hsl(228,12%,19%)]" />
+          <div className="my-8 h-px bg-border" />
 
-          {/* Weaknesses Section */}
+          {/* Threats Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-[hsl(38,92%,50%)]" />
+              <div className="h-3 w-3 rounded-full bg-[hsl(var(--threat))]" />
               <Label className="text-sm font-medium text-foreground">
-                Your current weaknesses
+                Your current threats
               </Label>
             </div>
             <div className="space-y-4">
-              {weaknesses.map((value, index) => (
+              {threats.map((value, index) => (
                 <Input
-                  key={`weakness-${index}`}
+                  key={`threat-${index}`}
                   value={value}
-                  onChange={(e) => updateWeakness(index, e.target.value)}
+                  onChange={(e) => updateThreat(index, e.target.value)}
                   onKeyDown={index === 1 ? handleKeyDown : undefined}
-                  placeholder={weaknessPlaceholders[index]}
-                  className="transition-colors duration-200 focus-visible:ring-[hsl(38,92%,50%)]"
+                  placeholder={threatPlaceholders[index]}
+                  className="transition-colors duration-200 focus-visible:ring-[hsl(var(--threat))]"
                 />
               ))}
             </div>
@@ -169,7 +183,7 @@ const OnboardingStep2 = () => {
             <Button
               onClick={handleSubmit}
               disabled={saving}
-              className="w-full bg-[#6366F1] text-white hover:bg-[#5558E6] md:w-auto"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 md:w-auto"
             >
               {saving ? (
                 <>
@@ -190,4 +204,4 @@ const OnboardingStep2 = () => {
   );
 };
 
-export default OnboardingStep2;
+export default OnboardingStep3;

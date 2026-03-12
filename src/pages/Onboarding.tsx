@@ -61,7 +61,7 @@ const Onboarding = () => {
           <div className="mb-8 flex items-center justify-between">
             <ArrowLeft className="h-5 w-5 text-muted-foreground/40" />
             <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs font-medium">
-              Step 1 of 2
+              Step 1 of 3
             </Badge>
           </div>
 
