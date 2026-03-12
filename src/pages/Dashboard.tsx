@@ -7,11 +7,11 @@ import { LogOut, Plus, Loader2 } from "lucide-react";
 
 type Quadrant = "strength" | "weakness" | "opportunity" | "threat";
 
-const QUADRANT_CONFIG: Record<Quadrant, { letter: string; label: string; borderColor: string; bgTint: string; emptyLabel: string }> = {
-  strength: { letter: "S", label: "Strengths", borderColor: "border-l-[hsl(142,71%,45%)]", bgTint: "bg-[hsl(142,71%,45%,0.05)]", emptyLabel: "Strength" },
-  weakness: { letter: "W", label: "Weaknesses", borderColor: "border-l-[hsl(38,92%,50%)]", bgTint: "bg-[hsl(38,92%,50%,0.05)]", emptyLabel: "Weakness" },
-  opportunity: { letter: "O", label: "Opportunities", borderColor: "border-l-[hsl(217,91%,60%)]", bgTint: "bg-[hsl(217,91%,60%,0.05)]", emptyLabel: "Opportunity" },
-  threat: { letter: "T", label: "Threats", borderColor: "border-l-[hsl(0,84%,60%)]", bgTint: "bg-[hsl(0,84%,60%,0.05)]", emptyLabel: "Threat" },
+const QUADRANT_CONFIG: Record<Quadrant, { letter: string; label: string; borderColor: string; bgTint: string; emptyText: string }> = {
+  strength: { letter: "S", label: "Strengths", borderColor: "border-l-[hsl(142,71%,45%)]", bgTint: "bg-[hsl(142,71%,45%,0.05)]", emptyText: "Add a task that builds your strengths" },
+  weakness: { letter: "W", label: "Weaknesses", borderColor: "border-l-[hsl(38,92%,50%)]", bgTint: "bg-[hsl(38,92%,50%,0.05)]", emptyText: "Add a task that closes a gap" },
+  opportunity: { letter: "O", label: "Opportunities", borderColor: "border-l-[hsl(217,91%,60%)]", bgTint: "bg-[hsl(217,91%,60%,0.05)]", emptyText: "Add a task that captures an opportunity" },
+  threat: { letter: "T", label: "Threats", borderColor: "border-l-[hsl(0,84%,60%)]", bgTint: "bg-[hsl(0,84%,60%,0.05)]", emptyText: "Add a task that protects your position" },
 };
 
 const DOT_COLORS: Record<Quadrant, string> = {
