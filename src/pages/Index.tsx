@@ -22,7 +22,7 @@ const Index = () => {
               Categorise daily tasks by Strengths, Weaknesses, Opportunities, and Threats — and build balance into every day.
             </p>
             <Link to="/auth">
-              <Button size="lg" className="gap-2 mt-4">
+              <Button size="lg" className="gap-2 mt-4 rounded-full px-8">
                 Get started <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
