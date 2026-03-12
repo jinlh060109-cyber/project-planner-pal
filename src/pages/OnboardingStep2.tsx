@@ -69,24 +69,7 @@ const OnboardingStep2 = () => {
       }
     }
 
-    // Mark onboarding as completed
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .update({ onboarding_completed: true })
-      .eq("user_id", user.id);
-
-    if (profileError) {
-      toast({
-        title: "Error completing onboarding",
-        description: profileError.message,
-        variant: "destructive",
-      });
-      setSaving(false);
-      return;
-    }
-
-    await queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
-    navigate("/dashboard");
+    navigate("/onboarding/step3");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
