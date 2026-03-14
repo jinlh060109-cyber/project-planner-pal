@@ -298,6 +298,9 @@ const Dashboard = () => {
         })}
       </main>
 
+      {/* Balance indicator */}
+      <BalanceIndicator tasks={tasks} />
+
       {/* Bottom input bar */}
       <div className="border-t border-border px-4 py-3 shrink-0">
         <div className="max-w-3xl mx-auto flex gap-2 items-center">
