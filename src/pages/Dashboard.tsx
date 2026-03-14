@@ -238,8 +238,23 @@ const Dashboard = () => {
                 </span>
               </div>
 
-              {/* Task cards or empty state */}
-              {qTasks.length === 0 ? (
+              {/* Task cards, loading, or empty state */}
+              {isLoading ? (
+                <div className="flex-1 flex flex-col gap-2">
+                  {[0, 1].map((i) => (
+                    <div key={i} className={cn("rounded-xl border-l-4 bg-card p-4", config.borderColor)}>
+                      <div className="flex items-start gap-3">
+                        <Skeleton className="h-5 w-5 rounded-full shrink-0" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-3 w-1/2" />
+                        </div>
+                        <Skeleton className="h-5 w-14 rounded-full shrink-0" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : qTasks.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center border border-dashed border-border rounded-lg">
                   <p className="text-sm text-muted-foreground italic">
                     {config.emptyText}
