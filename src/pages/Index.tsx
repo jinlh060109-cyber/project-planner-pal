@@ -1,8 +1,21 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Shield, Target, TrendingUp, AlertTriangle, ArrowRight } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  if (user) return <Navigate to="/dashboard" replace />;
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="container flex items-center justify-between h-16">
