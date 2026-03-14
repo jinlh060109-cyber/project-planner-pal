@@ -6,7 +6,7 @@ const Index = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="container flex items-center justify-between h-16">
-        <span className="text-lg font-display">SWOT Planner</span>
+        <span className="text-lg font-display">Quadra</span>
         <Link to="/auth">
           <Button variant="outline" size="sm">Sign in</Button>
         </Link>
