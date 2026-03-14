@@ -101,6 +101,7 @@ const Dashboard = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [completingIds, setCompletingIds] = useState<Set<string>>(new Set());
+  const [movingIds, setMovingIds] = useState<Set<string>>(new Set());
 
   // Fetch tasks on mount
   useEffect(() => {
