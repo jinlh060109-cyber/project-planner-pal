@@ -317,13 +317,15 @@ const Dashboard = () => {
                   {qTasks.map((task) => {
                     const isCompleting = completingIds.has(task.id);
                     const priority = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.Medium;
+                    const isMoving = movingIds.has(task.id);
                     return (
                       <div
                         key={task.id}
                         className={cn(
-                          "group relative rounded-xl border-l-4 bg-card p-4 shadow-sm transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5",
+                          "group relative rounded-xl border-l-4 bg-card p-4 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5",
                           config.borderColor,
-                          isCompleting && "opacity-50 line-through transition-opacity duration-700"
+                          isCompleting && "opacity-50 line-through transition-opacity duration-700",
+                          isMoving && "opacity-70"
                         )}
                       >
                         <div className="flex items-start gap-3">
@@ -352,11 +354,23 @@ const Dashboard = () => {
                               {task.content}
                             </p>
                             {task.reasoning && (
-                              <p className="mt-1 text-[13px] text-muted-foreground leading-snug">
+                              <p className={cn(
+                                "mt-1 text-[13px] leading-snug",
+                                task.reasoning === "Manually classified"
+                                  ? "text-muted-foreground italic"
+                                  : "text-muted-foreground"
+                              )}>
                                 {task.reasoning}
                               </p>
                             )}
                           </div>
+
+                          {/* Move menu */}
+                          <TaskMoveMenu
+                            currentQuadrant={task.quadrant}
+                            onMove={(newQ) => handleMoveTask(task.id, newQ)}
+                            isMoving={isMoving}
+                          />
 
                           {/* Priority badge */}
                           <span
