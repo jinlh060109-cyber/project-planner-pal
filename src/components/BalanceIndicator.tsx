@@ -52,26 +52,19 @@ const BalanceIndicator = ({ tasks }: BalanceIndicatorProps) => {
           <>
             {/* Bar */}
             <div className="h-3 w-full rounded-[999px] overflow-hidden flex items-stretch">
-              {SEGMENTS.map(({ key, letter, color }) => {
+              {SEGMENTS.map(({ key, color }) => {
                 const pct = (counts[key] / total) * 100;
                 if (pct === 0) return null;
-                const wide = pct >= 15; // ~40px at typical widths
                 const isDominant = dominantKey === key;
                 return (
                   <div
                     key={key}
                     className={cn(
-                      "relative transition-all duration-[600ms] ease-in-out first:rounded-l-[999px] last:rounded-r-[999px]",
+                      "transition-all duration-[600ms] ease-in-out first:rounded-l-[999px] last:rounded-r-[999px]",
                       isDominant && "animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]"
                     )}
                     style={{ width: `${pct}%`, backgroundColor: color }}
-                  >
-                    {wide && (
-                      <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-primary-foreground leading-none">
-                        {letter}
-                      </span>
-                    )}
-                  </div>
+                  />
                 );
               })}
             </div>
