@@ -100,7 +100,7 @@ const Auth = () => {
               {isLogin ? "Welcome back" : "Get started"}
             </CardTitle>
             <CardDescription>
-              {isLogin ? "Sign in to your SWOT Planner" : "Create your SWOT Planner account"}
+              {isLogin ? "Sign in to your Quadra" : "Create your Quadra account"}
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>

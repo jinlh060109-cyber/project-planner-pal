@@ -6,7 +6,7 @@ const Index = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="container flex items-center justify-between h-16">
-        <span className="text-lg font-display">SWOT Planner</span>
+        <span className="text-lg font-display">Quadra</span>
         <Link to="/auth">
           <Button variant="outline" size="sm">Sign in</Button>
         </Link>
@@ -50,7 +50,7 @@ const Index = () => {
 
       <footer className="border-t py-6">
         <div className="container text-center text-sm text-muted-foreground">
-          SWOT Planner — Strategic daily planning
+          Quadra — Strategic daily planning
         </div>
       </footer>
     </div>
