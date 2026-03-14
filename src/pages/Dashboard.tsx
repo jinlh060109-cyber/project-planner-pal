@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { LogOut, Plus, Loader2, Check } from "lucide-react";
 import BalanceIndicator from "@/components/BalanceIndicator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -97,22 +98,35 @@ const Dashboard = () => {
   const [taskInput, setTaskInput] = useState("");
   const [isClassifying, setIsClassifying] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [completingIds, setCompletingIds] = useState<Set<string>>(new Set());
 
   // Fetch tasks on mount
   useEffect(() => {
     if (!user) return;
     const fetchTasks = async () => {
-      const { data } = await supabase
+      setIsLoading(true);
+      const { data, error } = await supabase
         .from("tasks")
         .select("*")
         .eq("user_id", user.id)
         .eq("is_completed", false)
         .order("created_at", { ascending: false });
-      if (data) setTasks(data as Task[]);
+
+      if (error) {
+        console.error("Failed to load tasks:", error);
+        toast({
+          title: "Couldn't load your tasks — please refresh",
+          variant: "destructive",
+          duration: Infinity,
+        });
+      } else if (data) {
+        setTasks(data as Task[]);
+      }
+      setIsLoading(false);
     };
     fetchTasks();
-  }, [user]);
+  }, [user, toast]);
 
   const handleAddTask = useCallback(async () => {
     const text = taskInput.trim();
@@ -224,8 +238,23 @@ const Dashboard = () => {
                 </span>
               </div>
 
-              {/* Task cards or empty state */}
-              {qTasks.length === 0 ? (
+              {/* Task cards, loading, or empty state */}
+              {isLoading ? (
+                <div className="flex-1 flex flex-col gap-2">
+                  {[0, 1].map((i) => (
+                    <div key={i} className={cn("rounded-xl border-l-4 bg-card p-4", config.borderColor)}>
+                      <div className="flex items-start gap-3">
+                        <Skeleton className="h-5 w-5 rounded-full shrink-0" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-3 w-1/2" />
+                        </div>
+                        <Skeleton className="h-5 w-14 rounded-full shrink-0" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : qTasks.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center border border-dashed border-border rounded-lg">
                   <p className="text-sm text-muted-foreground italic">
                     {config.emptyText}
