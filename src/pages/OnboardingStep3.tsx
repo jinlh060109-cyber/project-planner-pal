@@ -94,12 +94,12 @@ const OnboardingStep3 = () => {
   };
 
   const opportunityPlaceholders = [
-    "e.g. AI tools are creating demand for people who can build with them",
+    "e.g. AI tools now let non-technical people build products without coding",
     "e.g. My university network is full of potential early users",
   ];
 
   const threatPlaceholders = [
-    "e.g. Job market is competitive for business graduates without technical skills",
+    "e.g. AI is automating tasks that used to require human specialists",
     "e.g. Limited time between university and bar work",
   ];
 
