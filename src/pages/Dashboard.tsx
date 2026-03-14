@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -97,7 +96,6 @@ const formattedDate = today.toLocaleDateString("en-GB", {
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [taskInput, setTaskInput] = useState("");
   const [isClassifying, setIsClassifying] = useState(false);
@@ -105,29 +103,6 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [completingIds, setCompletingIds] = useState<Set<string>>(new Set());
   const [movingIds, setMovingIds] = useState<Set<string>>(new Set());
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState<string | null>(null);
-
-  // Fetch profile for avatar
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("avatar_url, display_name")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
-        if (data) {
-          setAvatarUrl(data.avatar_url);
-          setDisplayName(data.display_name);
-        }
-      });
-  }, [user]);
-
-  const userInitial = useMemo(() => {
-    const name = displayName || user?.email || "?";
-    return name.charAt(0).toUpperCase();
-  }, [displayName, user?.email]);
 
   // Fetch tasks on mount
   useEffect(() => {
@@ -283,22 +258,10 @@ const Dashboard = () => {
         <h1 className="text-xl font-display font-bold text-foreground">
           Today's Strategy
         </h1>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <span className="text-sm text-muted-foreground hidden sm:block">
             {formattedDate}
           </span>
-          <button
-            onClick={() => navigate("/profile")}
-            className="w-8 h-8 rounded-full overflow-hidden shrink-0 ring-2 ring-transparent hover:ring-primary/50 transition-all"
-          >
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-primary flex items-center justify-center">
-                <span className="text-xs font-bold text-primary-foreground">{userInitial}</span>
-              </div>
-            )}
-          </button>
           <Button
             variant="ghost"
             size="icon"
