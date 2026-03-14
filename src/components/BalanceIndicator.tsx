@@ -51,7 +51,7 @@ const BalanceIndicator = ({ tasks }: BalanceIndicatorProps) => {
         ) : (
           <>
             {/* Bar */}
-            <div className="h-2 w-full rounded-[999px] overflow-hidden flex">
+            <div className="h-2 w-full rounded-[999px] overflow-hidden flex items-stretch">
               {SEGMENTS.map(({ key, letter, color }) => {
                 const pct = (counts[key] / total) * 100;
                 if (pct === 0) return null;
@@ -61,13 +61,13 @@ const BalanceIndicator = ({ tasks }: BalanceIndicatorProps) => {
                   <div
                     key={key}
                     className={cn(
-                      "h-full flex items-center justify-center transition-all duration-[600ms] ease-in-out first:rounded-l-[999px] last:rounded-r-[999px]",
+                      "relative transition-all duration-[600ms] ease-in-out first:rounded-l-[999px] last:rounded-r-[999px]",
                       isDominant && "animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]"
                     )}
                     style={{ width: `${pct}%`, backgroundColor: color }}
                   >
                     {wide && (
-                      <span className="text-[9px] font-bold text-primary-foreground leading-none">
+                      <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-primary-foreground leading-none">
                         {letter}
                       </span>
                     )}
