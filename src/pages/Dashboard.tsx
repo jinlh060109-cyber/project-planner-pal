@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -314,18 +315,33 @@ const Dashboard = () => {
                 </div>
               ) : (
                 <div className="flex-1 flex flex-col gap-2 overflow-auto">
+                  <AnimatePresence mode="popLayout">
                   {qTasks.map((task) => {
                     const isCompleting = completingIds.has(task.id);
                     const priority = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.Medium;
                     const isMoving = movingIds.has(task.id);
                     return (
-                      <div
+                      <motion.div
                         key={task.id}
+                        layout
+                        layoutId={task.id}
+                        initial={{ opacity: 0, scale: 0.95, y: 8 }}
+                        animate={{
+                          opacity: isMoving ? 0.7 : isCompleting ? 0.5 : 1,
+                          scale: 1,
+                          y: 0,
+                        }}
+                        exit={{ opacity: 0, scale: 0.92, y: -8 }}
+                        transition={{
+                          layout: { type: "spring", stiffness: 350, damping: 30 },
+                          opacity: { duration: 0.25, ease: "easeOut" },
+                          scale: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] },
+                          y: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] },
+                        }}
                         className={cn(
-                          "group relative rounded-xl border-l-4 bg-card p-4 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5",
+                          "group relative rounded-xl border-l-4 bg-card p-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5",
                           config.borderColor,
-                          isCompleting && "opacity-50 line-through transition-opacity duration-700",
-                          isMoving && "opacity-70"
+                          isCompleting && "line-through"
                         )}
                       >
                         <div className="flex items-start gap-3">
@@ -383,9 +399,10 @@ const Dashboard = () => {
                             {task.priority}
                           </span>
                         </div>
-                      </div>
+                      </motion.div>
                     );
                   })}
+                  </AnimatePresence>
                 </div>
               )}
             </div>
