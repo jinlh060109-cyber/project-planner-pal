@@ -97,22 +97,35 @@ const Dashboard = () => {
   const [taskInput, setTaskInput] = useState("");
   const [isClassifying, setIsClassifying] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [completingIds, setCompletingIds] = useState<Set<string>>(new Set());
 
   // Fetch tasks on mount
   useEffect(() => {
     if (!user) return;
     const fetchTasks = async () => {
-      const { data } = await supabase
+      setIsLoading(true);
+      const { data, error } = await supabase
         .from("tasks")
         .select("*")
         .eq("user_id", user.id)
         .eq("is_completed", false)
         .order("created_at", { ascending: false });
-      if (data) setTasks(data as Task[]);
+
+      if (error) {
+        console.error("Failed to load tasks:", error);
+        toast({
+          title: "Couldn't load your tasks — please refresh",
+          variant: "destructive",
+          duration: Infinity,
+        });
+      } else if (data) {
+        setTasks(data as Task[]);
+      }
+      setIsLoading(false);
     };
     fetchTasks();
-  }, [user]);
+  }, [user, toast]);
 
   const handleAddTask = useCallback(async () => {
     const text = taskInput.trim();
