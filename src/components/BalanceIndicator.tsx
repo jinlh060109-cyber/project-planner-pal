@@ -51,7 +51,7 @@ const BalanceIndicator = ({ tasks }: BalanceIndicatorProps) => {
         ) : (
           <>
             {/* Bar */}
-            <div className="h-2 w-full rounded-[999px] overflow-hidden flex items-stretch">
+            <div className="h-3 w-full rounded-[999px] overflow-hidden flex items-stretch">
               {SEGMENTS.map(({ key, letter, color }) => {
                 const pct = (counts[key] / total) * 100;
                 if (pct === 0) return null;
