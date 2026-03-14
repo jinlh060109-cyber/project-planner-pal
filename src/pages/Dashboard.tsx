@@ -97,6 +97,7 @@ const formattedDate = today.toLocaleDateString("en-GB", {
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [taskInput, setTaskInput] = useState("");
   const [isClassifying, setIsClassifying] = useState(false);
@@ -104,6 +105,29 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [completingIds, setCompletingIds] = useState<Set<string>>(new Set());
   const [movingIds, setMovingIds] = useState<Set<string>>(new Set());
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
+  // Fetch profile for avatar
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("avatar_url, display_name")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setAvatarUrl(data.avatar_url);
+          setDisplayName(data.display_name);
+        }
+      });
+  }, [user]);
+
+  const userInitial = useMemo(() => {
+    const name = displayName || user?.email || "?";
+    return name.charAt(0).toUpperCase();
+  }, [displayName, user?.email]);
 
   // Fetch tasks on mount
   useEffect(() => {
