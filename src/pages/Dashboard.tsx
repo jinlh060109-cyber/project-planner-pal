@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -97,7 +98,26 @@ const formattedDate = today.toLocaleDateString("en-GB", {
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [taskInput, setTaskInput] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
+  // Fetch avatar
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("avatar_url, display_name")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setAvatarUrl(data.avatar_url);
+          setDisplayName(data.display_name);
+        }
+      });
+  }, [user]);
   const [isClassifying, setIsClassifying] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -258,10 +278,22 @@ const Dashboard = () => {
         <h1 className="text-xl font-display font-bold text-foreground">
           Today's Strategy
         </h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground hidden sm:block">
             {formattedDate}
           </span>
+          <button
+            onClick={() => navigate("/profile")}
+            className="h-8 w-8 rounded-full overflow-hidden shrink-0 ring-2 ring-transparent hover:ring-primary/50 transition-all"
+          >
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Profile" className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-primary text-primary-foreground text-xs font-bold">
+                {displayName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "?"}
+              </div>
+            )}
+          </button>
           <Button
             variant="ghost"
             size="icon"
