@@ -194,6 +194,56 @@ const Dashboard = () => {
     }
   };
 
+  const handleMoveTask = useCallback(
+    async (taskId: string, newQuadrant: Quadrant) => {
+      const task = tasks.find((t) => t.id === taskId);
+      if (!task || task.quadrant === newQuadrant) return;
+
+      const originalQuadrant = task.quadrant;
+      const originalReasoning = task.reasoning;
+
+      // Optimistic update
+      setMovingIds((prev) => new Set(prev).add(taskId));
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? { ...t, quadrant: newQuadrant, reasoning: "Manually classified" }
+            : t
+        )
+      );
+
+      const { error } = await supabase
+        .from("tasks")
+        .update({ quadrant: newQuadrant, reasoning: "Manually classified" })
+        .eq("id", taskId);
+
+      setMovingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(taskId);
+        return next;
+      });
+
+      if (error) {
+        // Revert
+        setTasks((prev) =>
+          prev.map((t) =>
+            t.id === taskId
+              ? { ...t, quadrant: originalQuadrant as Quadrant, reasoning: originalReasoning }
+              : t
+          )
+        );
+        toast({
+          title: "Couldn't move task — try again",
+          variant: "destructive",
+        });
+      } else {
+        const config = QUADRANT_CONFIG[newQuadrant];
+        toast({ title: `Moved to ${config.label}`, duration: 3000 });
+      }
+    },
+    [tasks, toast]
+  );
+
   const PRIORITY_ORDER: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
   const tasksByQuadrant = (q: Quadrant) =>
     tasks
