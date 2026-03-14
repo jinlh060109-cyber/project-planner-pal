@@ -50,7 +50,7 @@ const Index = () => {
 
       <footer className="border-t py-6">
         <div className="container text-center text-sm text-muted-foreground">
-          SWOT Planner — Strategic daily planning
+          Quadra — Strategic daily planning
         </div>
       </footer>
     </div>
