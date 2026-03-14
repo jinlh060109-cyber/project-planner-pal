@@ -283,10 +283,22 @@ const Dashboard = () => {
         <h1 className="text-xl font-display font-bold text-foreground">
           Today's Strategy
         </h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground hidden sm:block">
             {formattedDate}
           </span>
+          <button
+            onClick={() => navigate("/profile")}
+            className="w-8 h-8 rounded-full overflow-hidden shrink-0 ring-2 ring-transparent hover:ring-primary/50 transition-all"
+          >
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-primary flex items-center justify-center">
+                <span className="text-xs font-bold text-primary-foreground">{userInitial}</span>
+              </div>
+            )}
+          </button>
           <Button
             variant="ghost"
             size="icon"
