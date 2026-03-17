@@ -139,6 +139,10 @@ const Profile = () => {
         setSwotItems(grouped);
       }
 
+      if (subSwotRes.data) {
+        setSubSwots(subSwotRes.data as SubSwot[]);
+      }
+
       setIsLoading(false);
     };
     load();
