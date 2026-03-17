@@ -372,7 +372,94 @@ const Profile = () => {
           </div>
         </section>
 
-        {/* SECTION 3 — Footer */}
+        {/* SECTION 3 — Skill Profiles */}
+        <section className="mb-10">
+          <h2 className="text-xs font-semibold tracking-[0.08em] uppercase text-muted-foreground mb-4">
+            Skill Profiles
+          </h2>
+
+          {isLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-20 rounded-xl" />
+              <Skeleton className="h-20 rounded-xl" />
+            </div>
+          ) : (
+            <>
+              {subSwots.length === 0 && (
+                <p className="text-[13px] text-muted-foreground italic mb-4">
+                  No skill profiles yet — add one below
+                </p>
+              )}
+
+              <div className="flex flex-col gap-3 mb-4">
+                {subSwots.map((s) => (
+                  <motion.div
+                    key={s.id}
+                    whileHover={{ y: -2 }}
+                    transition={{ duration: 0.2 }}
+                    className="rounded-xl bg-card border border-border p-4 shadow-sm hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                    onClick={() => {
+                      if (deletingId !== s.id) setEditingSubSwot(s);
+                    }}
+                  >
+                    {deletingId === s.id ? (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[13px] text-muted-foreground">Delete this skill?</span>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="h-7 text-xs rounded-lg"
+                            onClick={(e) => { e.stopPropagation(); handleDeleteSubSwot(s.id); }}
+                          >
+                            Yes, delete
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs rounded-lg"
+                            onClick={(e) => { e.stopPropagation(); setDeletingId(null); }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-base font-bold text-foreground">{s.name}</p>
+                          {s.description && (
+                            <p className="text-[13px] text-muted-foreground truncate">{s.description}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 ml-4 shrink-0">
+                          <span className="text-[12px] text-muted-foreground">Edit →</span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setDeletingId(s.id); }}
+                            className="text-destructive/60 hover:text-destructive transition-colors"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Add new skill button */}
+              <button
+                onClick={() => setEditingSubSwot("new")}
+                className="w-full h-12 rounded-xl border border-dashed border-border flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-muted-foreground transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="text-[13px]">Add skill profile</span>
+              </button>
+            </>
+          )}
+        </section>
+
+        {/* SECTION 4 — Footer */}
         <section className="space-y-4">
           <div className="flex sm:justify-end">
             <Button
