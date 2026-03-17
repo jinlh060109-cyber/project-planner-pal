@@ -90,6 +90,11 @@ const Profile = () => {
 
   const [editingQuadrant, setEditingQuadrant] = useState<Quadrant | null>(null);
 
+  // Sub-SWOT skill profiles
+  const [subSwots, setSubSwots] = useState<SubSwot[]>([]);
+  const [editingSubSwot, setEditingSubSwot] = useState<SubSwot | "new" | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   // Fetch profile + swot items
   useEffect(() => {
     if (!user) return;
