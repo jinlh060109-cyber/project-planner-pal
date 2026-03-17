@@ -204,6 +204,25 @@ const Profile = () => {
     setSwotItems((prev) => ({ ...prev, [quadrant]: items }));
   };
 
+  const handleSubSwotSaved = (item: SubSwot) => {
+    setSubSwots((prev) => {
+      const idx = prev.findIndex((s) => s.id === item.id);
+      if (idx >= 0) return prev.map((s) => (s.id === item.id ? item : s));
+      return [...prev, item];
+    });
+  };
+
+  const handleDeleteSubSwot = async (id: string) => {
+    const { error } = await supabase.from("sub_swots").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Couldn't delete — try again", variant: "destructive" });
+      return;
+    }
+    setSubSwots((prev) => prev.filter((s) => s.id !== id));
+    setDeletingId(null);
+    toast({ title: "Skill profile deleted", duration: 3000 });
+  };
+
   const initial = profile.display_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "?";
 
   return (
