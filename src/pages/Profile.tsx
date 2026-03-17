@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, Camera } from "lucide-react";
+import { ArrowLeft, Loader2, Camera, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import SwotEditModal from "@/components/SwotEditModal";
+import SubSwotEditModal, { type SubSwot } from "@/components/SubSwotEditModal";
 
 type Quadrant = "strength" | "weakness" | "opportunity" | "threat";
 
