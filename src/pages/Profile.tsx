@@ -506,6 +506,16 @@ const Profile = () => {
           onSaved={handleSwotSaved}
         />
       )}
+
+      {/* Sub-SWOT Edit Modal */}
+      {editingSubSwot && user && (
+        <SubSwotEditModal
+          subSwot={editingSubSwot === "new" ? null : editingSubSwot}
+          userId={user.id}
+          onClose={() => setEditingSubSwot(null)}
+          onSaved={handleSubSwotSaved}
+        />
+      )}
     </div>
   );
 };
