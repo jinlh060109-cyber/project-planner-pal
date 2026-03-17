@@ -100,9 +100,10 @@ const Profile = () => {
     if (!user) return;
     const load = async () => {
       setIsLoading(true);
-      const [profileRes, swotRes] = await Promise.all([
+      const [profileRes, swotRes, subSwotRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", user.id).single(),
         supabase.from("swot_items").select("*").eq("user_id", user.id).order("sort_order"),
+        supabase.from("sub_swots").select("*").eq("user_id", user.id).order("created_at"),
       ]);
 
       if (profileRes.data) {
