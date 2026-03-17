@@ -98,6 +98,42 @@ export type Database = {
         }
         Relationships: []
       }
+      sub_swots: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          opportunity: string[] | null
+          strength: string[] | null
+          threat: string[] | null
+          user_id: string
+          weakness: string[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          opportunity?: string[] | null
+          strength?: string[] | null
+          threat?: string[] | null
+          user_id: string
+          weakness?: string[] | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          opportunity?: string[] | null
+          strength?: string[] | null
+          threat?: string[] | null
+          user_id?: string
+          weakness?: string[] | null
+        }
+        Relationships: []
+      }
       swot_items: {
         Row: {
           content: string
