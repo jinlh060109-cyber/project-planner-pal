@@ -235,7 +235,7 @@ const SubSwotEditModal = ({ subSwot, userId, onClose, onSaved }: SubSwotEditModa
                         <Input
                           value={item}
                           onChange={(e) => updateItem(q, idx, e.target.value)}
-                          placeholder={`Item ${idx + 1}`}
+                          placeholder={meta.placeholders[idx] || `Item ${idx + 1}`}
                           className="bg-background border-border focus-visible:ring-0 focus-visible:border-primary transition-colors duration-200"
                         />
                         <button
