@@ -1,18 +1,19 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, Camera, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import SwotEditModal from "@/components/SwotEditModal";
 import SubSwotEditModal, { type SubSwot } from "@/components/SubSwotEditModal";
+import StrategicFoundation from "@/components/profile/StrategicFoundation";
+import SkillProfiles from "@/components/profile/SkillProfiles";
+import ProjectsSection from "@/components/profile/ProjectsSection";
 
 type Quadrant = "strength" | "weakness" | "opportunity" | "threat";
 
@@ -22,42 +23,6 @@ interface ProfileData {
   north_star: string | null;
   avatar_url: string | null;
 }
-
-const QUADRANT_CONFIG: Record<
-  Quadrant,
-  { letter: string; label: string; borderColor: string; bgTint: string; dotColor: string }
-> = {
-  strength: {
-    letter: "S",
-    label: "Strengths",
-    borderColor: "border-l-[hsl(var(--strength))]",
-    bgTint: "bg-[hsl(142,71%,45%,0.05)]",
-    dotColor: "bg-[hsl(var(--strength))]",
-  },
-  weakness: {
-    letter: "W",
-    label: "Weaknesses",
-    borderColor: "border-l-[hsl(var(--weakness))]",
-    bgTint: "bg-[hsl(38,92%,50%,0.05)]",
-    dotColor: "bg-[hsl(var(--weakness))]",
-  },
-  opportunity: {
-    letter: "O",
-    label: "Opportunities",
-    borderColor: "border-l-[hsl(var(--opportunity))]",
-    bgTint: "bg-[hsl(217,91%,60%,0.05)]",
-    dotColor: "bg-[hsl(var(--opportunity))]",
-  },
-  threat: {
-    letter: "T",
-    label: "Threats",
-    borderColor: "border-l-[hsl(var(--threat))]",
-    bgTint: "bg-[hsl(0,84%,60%,0.05)]",
-    dotColor: "bg-[hsl(var(--threat))]",
-  },
-};
-
-const QUADRANTS: Quadrant[] = ["strength", "weakness", "opportunity", "threat"];
 
 const Profile = () => {
   const { user } = useAuth();
