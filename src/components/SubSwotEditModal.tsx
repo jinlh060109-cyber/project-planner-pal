@@ -30,11 +30,11 @@ interface SubSwotEditModalProps {
   onSaved: (item: SubSwot) => void;
 }
 
-const QUADRANT_META: Record<Quadrant, { letter: string; label: string; cssVar: string }> = {
-  strength: { letter: "S", label: "Strengths", cssVar: "--strength" },
-  weakness: { letter: "W", label: "Weaknesses", cssVar: "--weakness" },
-  opportunity: { letter: "O", label: "Opportunities", cssVar: "--opportunity" },
-  threat: { letter: "T", label: "Threats", cssVar: "--threat" },
+const QUADRANT_META: Record<Quadrant, { letter: string; label: string; cssVar: string; placeholders: string[] }> = {
+  strength: { letter: "S", label: "Strengths", cssVar: "--strength", placeholders: ["e.g. Clear storytelling ability", "e.g. Confident body language", "e.g. Strong vocal projection"] },
+  weakness: { letter: "W", label: "Weaknesses", cssVar: "--weakness", placeholders: ["e.g. Nervous with large audiences", "e.g. Tend to rush through slides", "e.g. Struggle with Q&A sessions"] },
+  opportunity: { letter: "O", label: "Opportunities", cssVar: "--opportunity", placeholders: ["e.g. Join a local Toastmasters club", "e.g. Volunteer for team presentations", "e.g. Record and review practice runs"] },
+  threat: { letter: "T", label: "Threats", cssVar: "--threat", placeholders: ["e.g. Avoiding practice due to anxiety", "e.g. Negative feedback loops", "e.g. Comparing myself to expert speakers"] },
 };
 
 const QUADRANTS: Quadrant[] = ["strength", "weakness", "opportunity", "threat"];
