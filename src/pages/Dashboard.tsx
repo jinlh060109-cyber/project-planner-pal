@@ -21,6 +21,8 @@ interface Task {
   quadrant: Quadrant;
   reasoning: string | null;
   priority: string;
+  matched_skill: string | null;
+  skill_reasoning: string | null;
   is_completed: boolean;
   created_at: string;
 }
@@ -88,17 +90,20 @@ const PRIORITY_STYLES: Record<string, { bg: string; text: string }> = {
   Low: { bg: "bg-[hsl(142,71%,45%,0.15)]", text: "text-[hsl(142,71%,45%)]" },
 };
 
-const today = new Date();
-const formattedDate = today.toLocaleDateString("en-GB", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-});
+const getFormattedDate = () =>
+  new Date().toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
+const getTodayISO = () => new Date().toISOString().split("T")[0];
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const formattedDate = getFormattedDate();
   const [taskInput, setTaskInput] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
@@ -134,6 +139,7 @@ const Dashboard = () => {
         .select("*")
         .eq("user_id", user.id)
         .eq("is_completed", false)
+        .eq("task_date", getTodayISO())
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -190,10 +196,23 @@ const Dashboard = () => {
     async (taskId: string) => {
       setCompletingIds((prev) => new Set(prev).add(taskId));
 
-      await supabase
+      const { error } = await supabase
         .from("tasks")
         .update({ is_completed: true })
         .eq("id", taskId);
+
+      if (error) {
+        setCompletingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(taskId);
+          return next;
+        });
+        toast({
+          title: "Couldn't complete task — try again",
+          variant: "destructive",
+        });
+        return;
+      }
 
       // Wait for fade animation
       setTimeout(() => {
@@ -205,7 +224,7 @@ const Dashboard = () => {
         });
       }, 800);
     },
-    []
+    [toast]
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -411,6 +430,14 @@ const Dashboard = () => {
                                 {task.reasoning}
                               </p>
                             )}
+                            {task.matched_skill && (
+                              <span
+                                className="mt-1.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
+                                title={task.skill_reasoning || undefined}
+                              >
+                                {task.matched_skill}
+                              </span>
+                            )}
                           </div>
 
                           {/* Move menu */}
@@ -451,9 +478,10 @@ const Dashboard = () => {
           <div className="relative flex-1">
             <Input
               value={taskInput}
-              onChange={(e) => setTaskInput(e.target.value)}
+              onChange={(e) => setTaskInput(e.target.value.slice(0, 200))}
               onKeyDown={handleKeyDown}
               placeholder="What do you need to do today?"
+              maxLength={200}
               className="pr-20 transition-colors duration-200 focus-visible:ring-primary"
               disabled={isClassifying}
             />

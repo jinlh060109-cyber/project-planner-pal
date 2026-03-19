@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { Shield, TrendingUp, Target, AlertTriangle } from "lucide-react";
 
 const Auth = () => {
@@ -18,6 +18,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
 
   if (loading) {
     return (
@@ -37,7 +38,7 @@ const Auth = () => {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success("Welcome back!");
+        toast({ title: "Welcome back!", duration: 3000 });
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -48,10 +49,10 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        toast.success("Check your email to confirm your account!");
+        toast({ title: "Check your email to confirm your account!", duration: 5000 });
       }
     } catch (error: any) {
-      toast.error(error.message);
+      toast({ title: error.message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -76,11 +77,9 @@ const Auth = () => {
           ].map(({ label, icon: Icon, color }) => (
             <div
               key={label}
-              className="flex flex-col items-center justify-center gap-2 p-4"
+              className="flex flex-col items-center justify-center gap-2 p-4 bg-card"
               style={{
-                background: `hsla(${color}, 0.05)`,
-                backgroundColor: 'hsl(230,14%,12%)',
-                backgroundBlendMode: 'normal',
+                background: `linear-gradient(hsla(${color}, 0.05), hsla(${color}, 0.05)), hsl(230,14%,12%)`,
                 borderLeft: `4px solid hsl(${color})`,
                 borderRadius: 12,
               }}
@@ -148,7 +147,7 @@ const Auth = () => {
                   const { error } = await lovable.auth.signInWithOAuth("google", {
                     redirect_uri: window.location.origin,
                   });
-                  if (error) toast.error(error.message);
+                  if (error) toast({ title: error.message, variant: "destructive" });
                 }}
               >
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">

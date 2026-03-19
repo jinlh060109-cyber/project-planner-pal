@@ -19,6 +19,7 @@ const OnboardingStep3 = () => {
   const [opportunities, setOpportunities] = useState(["", ""]);
   const [threats, setThreats] = useState(["", ""]);
   const [saving, setSaving] = useState(false);
+  const [attempted, setAttempted] = useState(false);
 
   const updateOpportunity = (index: number, value: string) => {
     setOpportunities((prev) => prev.map((o, i) => (i === index ? value : o)));
@@ -28,11 +29,13 @@ const OnboardingStep3 = () => {
     setThreats((prev) => prev.map((t, i) => (i === index ? value : t)));
   };
 
-  const handleSubmit = async () => {
-    if (!user) return;
+  const filledOpportunities = opportunities.filter((o) => o.trim().length > 0);
+  const filledThreats = threats.filter((t) => t.trim().length > 0);
+  const hasMinimum = filledOpportunities.length >= 1 && filledThreats.length >= 1;
 
-    const filledOpportunities = opportunities.filter((o) => o.trim().length > 0);
-    const filledThreats = threats.filter((t) => t.trim().length > 0);
+  const handleSubmit = async () => {
+    setAttempted(true);
+    if (!user || !hasMinimum) return;
 
     setSaving(true);
 
@@ -177,6 +180,12 @@ const OnboardingStep3 = () => {
               ))}
             </div>
           </div>
+
+          {attempted && !hasMinimum && (
+            <p className="text-xs text-destructive mt-4">
+              Please add at least one opportunity and one threat for accurate classification
+            </p>
+          )}
 
           {/* CTA */}
           <div className="mt-8 flex justify-end">

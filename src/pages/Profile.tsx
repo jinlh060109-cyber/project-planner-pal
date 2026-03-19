@@ -144,8 +144,25 @@ const Profile = () => {
       toast({ title: "Please upload a JPG, PNG or WebP image", variant: "destructive" });
       return;
     }
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "Image must be under 2 MB", variant: "destructive" });
+      return;
+    }
 
     setIsUploading(true);
+
+    // Delete previous avatar if it exists
+    if (avatarUrl) {
+      try {
+        const oldPath = avatarUrl.split("/avatars/")[1];
+        if (oldPath) {
+          await supabase.storage.from("avatars").remove([decodeURIComponent(oldPath)]);
+        }
+      } catch {
+        // Non-critical — continue with upload
+      }
+    }
+
     const path = `${user.id}/${Date.now()}.${ext}`;
 
     const { error: upError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });

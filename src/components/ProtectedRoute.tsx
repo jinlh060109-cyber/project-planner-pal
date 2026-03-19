@@ -31,13 +31,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!user) return <Navigate to="/auth" replace />;
 
+  // Wait for profile data before making routing decisions
+  if (!profile) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
   const onOnboarding = location.pathname.startsWith("/onboarding");
 
-  if (profile && !profile.onboarding_completed && !onOnboarding) {
+  if (!profile.onboarding_completed && !onOnboarding) {
     return <Navigate to="/onboarding" replace />;
   }
 
-  if (profile && profile.onboarding_completed && onOnboarding) {
+  if (profile.onboarding_completed && onOnboarding) {
     return <Navigate to="/dashboard" replace />;
   }
 

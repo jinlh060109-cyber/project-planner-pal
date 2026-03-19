@@ -50,8 +50,7 @@ const Index = () => {
             ].map(({ label, icon: Icon, borderColor, tint }) => (
               <div
                 key={label}
-                className={`${tint} ${borderColor} border-l-4 bg-card rounded-xl p-5 text-center h-[140px] w-full max-w-[160px] flex flex-col items-center justify-center`}
-                style={{ borderRadius: 12 }}
+                className={`${tint} ${borderColor} border-l-4 rounded-xl p-5 text-center h-[140px] w-full max-w-[160px] flex flex-col items-center justify-center`}
               >
                 <Icon className="h-6 w-6 mb-2 text-muted-foreground" />
                 <span className="text-sm font-medium text-foreground">{label}</span>

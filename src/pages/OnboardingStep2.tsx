@@ -19,6 +19,7 @@ const OnboardingStep2 = () => {
   const [strengths, setStrengths] = useState(["", ""]);
   const [weaknesses, setWeaknesses] = useState(["", ""]);
   const [saving, setSaving] = useState(false);
+  const [attempted, setAttempted] = useState(false);
 
   const updateStrength = (index: number, value: string) => {
     setStrengths((prev) => prev.map((s, i) => (i === index ? value : s)));
@@ -28,11 +29,13 @@ const OnboardingStep2 = () => {
     setWeaknesses((prev) => prev.map((w, i) => (i === index ? value : w)));
   };
 
-  const handleSubmit = async () => {
-    if (!user) return;
+  const filledStrengths = strengths.filter((s) => s.trim().length > 0);
+  const filledWeaknesses = weaknesses.filter((w) => w.trim().length > 0);
+  const hasMinimum = filledStrengths.length >= 1 && filledWeaknesses.length >= 1;
 
-    const filledStrengths = strengths.filter((s) => s.trim().length > 0);
-    const filledWeaknesses = weaknesses.filter((w) => w.trim().length > 0);
+  const handleSubmit = async () => {
+    setAttempted(true);
+    if (!user || !hasMinimum) return;
 
     setSaving(true);
 
@@ -162,6 +165,12 @@ const OnboardingStep2 = () => {
               ))}
             </div>
           </div>
+
+          {attempted && !hasMinimum && (
+            <p className="text-xs text-destructive mt-4">
+              Please add at least one strength and one weakness for accurate classification
+            </p>
+          )}
 
           {/* CTA */}
           <div className="mt-8 flex justify-end">

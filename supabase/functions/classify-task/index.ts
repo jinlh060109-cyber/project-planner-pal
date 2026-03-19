@@ -19,6 +19,12 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    if (taskContent.trim().length > 200) {
+      return new Response(
+        JSON.stringify({ error: "Task content must be 200 characters or less" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Get user from auth header
     const authHeader = req.headers.get("Authorization");
@@ -39,19 +45,39 @@ serve(async (req) => {
       });
     }
 
-    // Fetch profile and SWOT items in parallel
-    const [profileRes, swotRes] = await Promise.all([
+    // Fetch profile, SWOT items, and skill profiles in parallel
+    const [profileRes, swotRes, subSwotRes] = await Promise.all([
       supabase.from("profiles").select("role_situation, north_star").eq("user_id", user.id).single(),
       supabase.from("swot_items").select("quadrant, content").eq("user_id", user.id),
+      supabase.from("sub_swots").select("name, description, strength, weakness, opportunity, threat").eq("user_id", user.id),
     ]);
 
     const profile = profileRes.data;
     const swotItems = swotRes.data || [];
+    const subSwots = subSwotRes.data || [];
 
     const strengths = swotItems.filter((i: any) => i.quadrant === "strength").map((i: any) => i.content);
     const weaknesses = swotItems.filter((i: any) => i.quadrant === "weakness").map((i: any) => i.content);
     const opportunities = swotItems.filter((i: any) => i.quadrant === "opportunity").map((i: any) => i.content);
     const threats = swotItems.filter((i: any) => i.quadrant === "threat").map((i: any) => i.content);
+
+    // Build skill profiles section for prompt
+    let skillProfilesSection = "";
+    if (subSwots.length > 0) {
+      const skillLines = subSwots.map((s: any) => {
+        const parts = [`  - ${s.name}`];
+        if (s.description) parts.push(`    Description: ${s.description}`);
+        if (s.strength?.length) parts.push(`    Strengths: ${s.strength.join(", ")}`);
+        if (s.weakness?.length) parts.push(`    Weaknesses: ${s.weakness.join(", ")}`);
+        if (s.opportunity?.length) parts.push(`    Opportunities: ${s.opportunity.join(", ")}`);
+        if (s.threat?.length) parts.push(`    Threats: ${s.threat.join(", ")}`);
+        return parts.join("\n");
+      });
+      skillProfilesSection = `\n\nSKILL PROFILES (active arenas the user is competing in):\n${skillLines.join("\n")}`;
+    }
+
+    // Build skill names list for matching
+    const skillNames = subSwots.map((s: any) => s.name);
 
     const systemPrompt = `You are a Strategic Life Analyst. Your sole job is to classify a task into exactly ONE SWOT quadrant based strictly on the user's personal profile below.
 
@@ -61,7 +87,7 @@ USER PROFILE:
 - Strengths: ${strengths.length ? strengths.join(", ") : "None specified"}
 - Weaknesses: ${weaknesses.length ? weaknesses.join(", ") : "None specified"}
 - Opportunities: ${opportunities.length ? opportunities.join(", ") : "None specified"}
-- Threats: ${threats.length ? threats.join(", ") : "None specified"}
+- Threats: ${threats.length ? threats.join(", ") : "None specified"}${skillProfilesSection}
 
 CLASSIFICATION RULES — read carefully before deciding:
 
@@ -86,12 +112,11 @@ REASONING RULES — strictly follow these:
 4. Reasoning must be exactly 1 sentence. No more.
 5. Start reasoning with the profile item, not the task description.
 
-Return ONLY valid JSON, no preamble:
-{
-  "quadrant": "S" | "W" | "O" | "T",
-  "reasoning": "One sentence starting with the specific profile item",
-  "priority": "High" | "Medium" | "Low"
-}
+SKILL MATCHING RULES:
+1. If the task relates to a specific skill profile listed above, return the skill name in matched_skill.
+2. If no skill profile is relevant, return null for matched_skill.
+3. If a skill is matched, skill_reasoning must explain the connection in one sentence.
+4. If no skill is matched, return null for skill_reasoning.
 
 PRIORITY RULES:
 - High: time-sensitive OR directly blocks/enables a core goal
@@ -143,8 +168,20 @@ PRIORITY RULES:
                       type: "string",
                       enum: ["High", "Medium", "Low"],
                     },
+                    matched_skill: {
+                      type: "string",
+                      nullable: true,
+                      description:
+                        "The name of the matched skill profile, or null if none.",
+                    },
+                    skill_reasoning: {
+                      type: "string",
+                      nullable: true,
+                      description:
+                        "One sentence explaining the skill match, or null if none.",
+                    },
                   },
-                  required: ["quadrant", "reasoning", "priority"],
+                  required: ["quadrant", "reasoning", "priority", "matched_skill", "skill_reasoning"],
                   additionalProperties: false,
                 },
               },
@@ -155,7 +192,7 @@ PRIORITY RULES:
             function: { name: "classify_task" },
           },
           temperature: 0.2,
-          max_tokens: 300,
+          max_tokens: 500,
         }),
       }
     );
@@ -185,7 +222,13 @@ PRIORITY RULES:
     const aiData = await aiResponse.json();
 
     // Extract from tool call
-    let classification: { quadrant: string; reasoning: string; priority: string };
+    let classification: {
+      quadrant: string;
+      reasoning: string;
+      priority: string;
+      matched_skill: string | null;
+      skill_reasoning: string | null;
+    };
     try {
       const toolCall = aiData.choices[0].message.tool_calls[0];
       classification = JSON.parse(toolCall.function.arguments);
@@ -217,6 +260,8 @@ PRIORITY RULES:
         quadrant: classification.quadrant,
         reasoning: classification.reasoning,
         priority: classification.priority,
+        matched_skill: classification.matched_skill || null,
+        skill_reasoning: classification.skill_reasoning || null,
         is_completed: false,
       })
       .select()
