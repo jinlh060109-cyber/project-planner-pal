@@ -24,8 +24,8 @@ const Auth = () => {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (user) return <Navigate to="/dashboard" replace />;
@@ -45,8 +45,8 @@ const Auth = () => {
           password,
           options: {
             data: { display_name: displayName },
-            emailRedirectTo: window.location.origin,
-          },
+            emailRedirectTo: window.location.origin
+          }
         });
         if (error) throw error;
         toast({ title: "Check your email to confirm your account!", duration: 5000 });
@@ -70,24 +70,24 @@ const Auth = () => {
         </p>
         <div className="grid grid-cols-2 gap-4 max-w-sm">
           {[
-            { label: "Strengths", icon: Shield, color: "142,71%,45%", },
-            { label: "Weaknesses", icon: Target, color: "38,92%,50%", },
-            { label: "Opportunities", icon: TrendingUp, color: "217,91%,60%", },
-            { label: "Threats", icon: AlertTriangle, color: "0,84%,60%", },
-          ].map(({ label, icon: Icon, color }) => (
-            <div
-              key={label}
-              className="flex flex-col items-center justify-center gap-2 p-4 bg-card"
-              style={{
-                background: `linear-gradient(hsla(${color}, 0.05), hsla(${color}, 0.05)), hsl(230,14%,12%)`,
-                borderLeft: `4px solid hsl(${color})`,
-                borderRadius: 12,
-              }}
-            >
+          { label: "Strengths", icon: Shield, color: "142,71%,45%" },
+          { label: "Weaknesses", icon: Target, color: "38,92%,50%" },
+          { label: "Opportunities", icon: TrendingUp, color: "217,91%,60%" },
+          { label: "Threats", icon: AlertTriangle, color: "0,84%,60%" }].
+          map(({ label, icon: Icon, color }) =>
+          <div
+            key={label}
+            className="flex flex-col items-center justify-center gap-2 p-4 bg-destructive-foreground text-primary-foreground"
+            style={{
+              background: `linear-gradient(hsla(${color}, 0.05), hsla(${color}, 0.05)), hsl(230,14%,12%)`,
+              borderLeft: `4px solid hsl(${color})`,
+              borderRadius: 12
+            }}>
+            
               <Icon className="h-5 w-5 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">{label}</span>
+              <span className="text-sm font-medium text-foreground font-serif">{label}</span>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
@@ -104,17 +104,17 @@ const Auth = () => {
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
-              {!isLogin && (
-                <div className="space-y-2">
+              {!isLogin &&
+              <div className="space-y-2">
                   <Label htmlFor="name">Display name</Label>
                   <Input
-                    id="name"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="Your name"
-                  />
+                  id="name"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Your name" />
+                
                 </div>
-              )}
+              }
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -123,8 +123,8 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  required
-                />
+                  required />
+                
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
@@ -135,8 +135,8 @@ const Auth = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  minLength={6}
-                />
+                  minLength={6} />
+                
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-3">
@@ -145,11 +145,11 @@ const Auth = () => {
                 className="w-full bg-[hsl(239,84%,67%)] text-white hover:bg-[hsl(239,84%,63%)]"
                 onClick={async () => {
                   const { error } = await lovable.auth.signInWithOAuth("google", {
-                    redirect_uri: window.location.origin,
+                    redirect_uri: window.location.origin
                   });
                   if (error) toast({ title: error.message, variant: "destructive" });
-                }}
-              >
+                }}>
+                
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -172,16 +172,16 @@ const Auth = () => {
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                
                 {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
               </button>
             </CardFooter>
           </form>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Auth;
