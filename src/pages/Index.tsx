@@ -11,7 +11,8 @@ const CARDS = [
     borderColor: "border-l-strength",
     tint: "rgba(34,197,94,0.04)",
     checkColor: "hsl(var(--strength))",
-    position: "top-[8%] left-[calc(50%-380px)] -rotate-3 z-10",
+    // top-left, tight orbit
+    position: "top-[12%] left-[calc(50%-340px)] -rotate-3 z-10",
     delay: "0s",
     tasks: [
       { text: "Lead team standup", done: false },
@@ -27,7 +28,8 @@ const CARDS = [
     borderColor: "border-l-weakness",
     tint: "rgba(245,158,11,0.04)",
     checkColor: "hsl(var(--weakness))",
-    position: "top-[8%] right-[calc(50%-380px)] rotate-2 z-20",
+    // top-right, tight orbit
+    position: "top-[12%] left-[calc(50%+120px)] rotate-2 z-20",
     delay: "1.2s",
     tasks: [
       { text: "Practice public speaking", done: false },
@@ -42,7 +44,8 @@ const CARDS = [
     borderColor: "border-l-opportunity",
     tint: "rgba(59,130,246,0.04)",
     checkColor: "hsl(var(--opportunity))",
-    position: "bottom-[10%] left-[calc(50%-360px)] rotate-2 z-30",
+    // bottom-left, tight orbit
+    position: "bottom-[12%] left-[calc(50%-340px)] rotate-2 z-30",
     delay: "2.4s",
     tasks: [
       { text: "Apply to AI conference", done: true },
@@ -57,7 +60,8 @@ const CARDS = [
     borderColor: "border-l-threat",
     tint: "rgba(239,68,68,0.04)",
     checkColor: "hsl(var(--threat))",
-    position: "bottom-[10%] right-[calc(50%-360px)] -rotate-2 z-40",
+    // bottom-right, tight orbit
+    position: "bottom-[12%] left-[calc(50%+120px)] -rotate-2 z-40",
     delay: "3.6s",
     tasks: [{ text: "Deadline: tax filing", done: false }],
     warning: "⚠ Due in 3 days",
@@ -107,7 +111,6 @@ const MockCard = ({
     className={`w-[220px] rounded-2xl border border-border ${borderColor} border-l-4 p-4 hover:shadow-lg hover:-translate-y-[2px] transition-all duration-200`}
     style={{ backgroundColor: tint, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
   >
-    {/* Header */}
     <div className="flex items-center gap-2 mb-3">
       <span className={`w-2 h-2 rounded-full ${dotColor} shrink-0`} />
       <span className="text-[13px] font-semibold text-foreground">{label}</span>
@@ -115,15 +118,12 @@ const MockCard = ({
         {count}
       </span>
     </div>
-    {/* Tasks */}
     <div className="flex flex-col">
       {tasks.map((t, i) => (
         <TaskRow key={i} text={t.text} done={t.done} checkColor={checkColor} />
       ))}
     </div>
-    {warning && (
-      <p className="text-[11px] mt-2 text-threat">{warning}</p>
-    )}
+    {warning && <p className="text-[11px] mt-2 text-threat">{warning}</p>}
   </div>
 );
 
@@ -141,7 +141,7 @@ const Index = () => {
   if (user) return <Navigate to="/dashboard" replace />;
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col h-screen bg-background overflow-hidden">
       {/* Navbar */}
       <header className="w-full h-16 flex items-center justify-between px-6 shrink-0 relative z-50">
         <span className="text-base font-semibold text-foreground">Quadra</span>
@@ -152,9 +152,9 @@ const Index = () => {
         </Link>
       </header>
 
-      {/* Hero */}
+      {/* Hero — fills remaining viewport */}
       <section className="relative flex-1 flex flex-col items-center justify-center overflow-hidden hero-gradient">
-        {/* Desktop floating cards */}
+        {/* Desktop floating cards — tight orbit */}
         <div className="hidden lg:block">
           {CARDS.map((card) => (
             <div
@@ -168,39 +168,6 @@ const Index = () => {
               <MockCard {...card} />
             </div>
           ))}
-
-          {/* Micro-elements */}
-          <div
-            className="absolute top-[6%] left-1/2 -translate-x-1/2 z-50 rotate-1"
-            style={{ animation: "floatMicro 6s ease-in-out infinite" }}
-          >
-            <span className="inline-block bg-secondary text-muted-foreground text-[11px] font-medium px-3 py-1 rounded-full shadow-sm">
-              AI-powered
-            </span>
-          </div>
-
-          <div
-            className="absolute bottom-[7%] left-1/2 -translate-x-1/2 z-50 -rotate-1"
-            style={{ animation: "floatMicro 6s ease-in-out 1s infinite" }}
-          >
-            <div
-              className="flex h-[6px] w-[120px] rounded-full overflow-hidden shadow-sm"
-            >
-              <div className="w-[30%] bg-strength" />
-              <div className="w-[20%] bg-weakness" />
-              <div className="w-[30%] bg-opportunity" />
-              <div className="w-[20%] bg-threat" />
-            </div>
-          </div>
-
-          <div
-            className="absolute bottom-[30%] left-1/2 translate-x-[60px] z-50 rotate-1"
-            style={{ animation: "floatMicro 6s ease-in-out 2s infinite" }}
-          >
-            <div className="bg-background border border-border rounded-xl px-3 py-2 shadow-sm">
-              <span className="text-[11px] text-muted-foreground">✓ 12 tasks completed</span>
-            </div>
-          </div>
         </div>
 
         {/* Hero content */}
@@ -233,13 +200,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="w-full border-t border-border py-6 shrink-0">
-        <p className="text-center text-[13px] text-muted-foreground">
-          Quadra — Strategic daily planning
-        </p>
-      </footer>
-
       <style>{`
         .hero-gradient {
           background: radial-gradient(ellipse at center, hsl(0 0% 100%) 0%, hsl(0 0% 96%) 100%);
@@ -247,10 +207,6 @@ const Index = () => {
         @keyframes floatCard {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-4px); }
-        }
-        @keyframes floatMicro {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-2px); }
         }
       `}</style>
     </div>
