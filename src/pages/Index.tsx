@@ -179,8 +179,7 @@ const Index = () => {
           </h1>
 
           <p className="mt-6 text-base font-normal text-muted-foreground max-w-[520px]">
-            Categorise daily tasks by Strengths, Weaknesses, Opportunities, and
-            Threats — and build balance into every day.
+            Your to-do list has no strategy. This one does.
           </p>
 
           <Link to="/auth" className="mt-8">
