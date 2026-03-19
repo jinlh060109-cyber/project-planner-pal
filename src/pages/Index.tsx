@@ -29,7 +29,7 @@ const CARDS = [
     tint: "rgba(245,158,11,0.04)",
     checkColor: "hsl(var(--weakness))",
     // top-right, tight orbit
-    position: "top-[12%] left-[calc(50%+120px)] rotate-2 z-20",
+    position: "top-[12%] left-[calc(50%+120px)] rotate-[3deg] z-20",
     delay: "1.2s",
     tasks: [
       { text: "Practice public speaking", done: false },
