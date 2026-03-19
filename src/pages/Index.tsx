@@ -61,7 +61,7 @@ const Index = () => {
       </main>
 
       <footer className="border-t py-6">
-        <div className="container text-center text-sm text-muted-foreground">
+        <div className="container text-center text-sm text-muted-foreground font-serif">
           Quadra — Strategic daily planning
         </div>
       </footer>
