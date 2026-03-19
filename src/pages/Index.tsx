@@ -254,6 +254,10 @@ const Index = () => {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-4px); }
         }
+        @keyframes floatMicro {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-3px); }
+        }
       `}</style>
     </div>
   );
