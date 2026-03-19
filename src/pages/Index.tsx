@@ -4,98 +4,98 @@ import { ArrowRight, Check } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const CARDS = [
-  {
-    label: "Strengths",
-    count: 3,
-    dotColor: "bg-strength",
-    borderColor: "border-l-strength",
-    tint: "rgba(34,197,94,0.04)",
-    checkColor: "hsl(var(--strength))",
-    // top-left, tight orbit
-    position: "top-[12%] left-[calc(50%-340px)] -rotate-[4deg] z-10",
-    delay: "0s",
-    tasks: [
-      { text: "Lead team standup", done: false },
-      { text: "Client pitch deck", done: true },
-      { text: "Mentor new hire", done: false },
-    ],
-    warning: null,
-  },
-  {
-    label: "Weaknesses",
-    count: 2,
-    dotColor: "bg-weakness",
-    borderColor: "border-l-weakness",
-    tint: "rgba(245,158,11,0.04)",
-    checkColor: "hsl(var(--weakness))",
-    // top-right, tight orbit
-    position: "top-[12%] left-[calc(50%+120px)] rotate-[3deg] z-20",
-    delay: "1.2s",
-    tasks: [
-      { text: "Practice public speaking", done: false },
-      { text: "Review financial reports", done: false },
-    ],
-    warning: null,
-  },
-  {
-    label: "Opportunities",
-    count: 2,
-    dotColor: "bg-opportunity",
-    borderColor: "border-l-opportunity",
-    tint: "rgba(59,130,246,0.04)",
-    checkColor: "hsl(var(--opportunity))",
-    // bottom-left, tight orbit
-    position: "bottom-[12%] left-[calc(50%-340px)] rotate-[3deg] z-30",
-    delay: "2.4s",
-    tasks: [
-      { text: "Apply to AI conference", done: true },
-      { text: "Network with VCs at demo day", done: false },
-    ],
-    warning: null,
-  },
-  {
-    label: "Threats",
-    count: 1,
-    dotColor: "bg-threat",
-    borderColor: "border-l-threat",
-    tint: "rgba(239,68,68,0.04)",
-    checkColor: "hsl(var(--threat))",
-    // bottom-right, tight orbit
-    position: "bottom-[12%] left-[calc(50%+120px)] -rotate-[3deg] z-40",
-    delay: "3.6s",
-    tasks: [{ text: "Deadline: tax filing", done: false }],
-    warning: "⚠ Due in 3 days",
-  },
-];
+{
+  label: "Strengths",
+  count: 3,
+  dotColor: "bg-strength",
+  borderColor: "border-l-strength",
+  tint: "rgba(34,197,94,0.04)",
+  checkColor: "hsl(var(--strength))",
+  // top-left, tight orbit
+  position: "top-[12%] left-[calc(50%-340px)] -rotate-[4deg] z-10",
+  delay: "0s",
+  tasks: [
+  { text: "Lead team standup", done: false },
+  { text: "Client pitch deck", done: true },
+  { text: "Mentor new hire", done: false }],
+
+  warning: null
+},
+{
+  label: "Weaknesses",
+  count: 2,
+  dotColor: "bg-weakness",
+  borderColor: "border-l-weakness",
+  tint: "rgba(245,158,11,0.04)",
+  checkColor: "hsl(var(--weakness))",
+  // top-right, tight orbit
+  position: "top-[12%] left-[calc(50%+120px)] rotate-[3deg] z-20",
+  delay: "1.2s",
+  tasks: [
+  { text: "Practice public speaking", done: false },
+  { text: "Review financial reports", done: false }],
+
+  warning: null
+},
+{
+  label: "Opportunities",
+  count: 2,
+  dotColor: "bg-opportunity",
+  borderColor: "border-l-opportunity",
+  tint: "rgba(59,130,246,0.04)",
+  checkColor: "hsl(var(--opportunity))",
+  // bottom-left, tight orbit
+  position: "bottom-[12%] left-[calc(50%-340px)] rotate-[3deg] z-30",
+  delay: "2.4s",
+  tasks: [
+  { text: "Apply to AI conference", done: true },
+  { text: "Network with VCs at demo day", done: false }],
+
+  warning: null
+},
+{
+  label: "Threats",
+  count: 1,
+  dotColor: "bg-threat",
+  borderColor: "border-l-threat",
+  tint: "rgba(239,68,68,0.04)",
+  checkColor: "hsl(var(--threat))",
+  // bottom-right, tight orbit
+  position: "bottom-[12%] left-[calc(50%+120px)] -rotate-[3deg] z-40",
+  delay: "3.6s",
+  tasks: [{ text: "Deadline: tax filing", done: false }],
+  warning: "⚠ Due in 3 days"
+}];
+
 
 const TaskRow = ({
   text,
   done,
-  checkColor,
-}: {
-  text: string;
-  done: boolean;
-  checkColor: string;
-}) => (
-  <div className="flex items-center gap-2 py-[3px]">
+  checkColor
+
+
+
+
+}: {text: string;done: boolean;checkColor: string;}) =>
+<div className="flex items-center gap-2 py-[3px]">
     <div
-      className="w-[14px] h-[14px] rounded-full border shrink-0 flex items-center justify-center"
-      style={{
-        borderColor: done ? checkColor : "hsl(var(--border))",
-        backgroundColor: done ? checkColor : "transparent",
-      }}
-    >
+    className="w-[14px] h-[14px] rounded-full border shrink-0 flex items-center justify-center"
+    style={{
+      borderColor: done ? checkColor : "hsl(var(--border))",
+      backgroundColor: done ? checkColor : "transparent"
+    }}>
+    
       {done && <Check className="w-[8px] h-[8px] text-white" strokeWidth={3} />}
     </div>
     <span
-      className={`text-[12px] leading-tight ${
-        done ? "text-muted-foreground line-through" : "text-foreground"
-      }`}
-    >
+    className={`text-[12px] leading-tight ${
+    done ? "text-muted-foreground line-through" : "text-foreground"}`
+    }>
+    
       {text}
     </span>
-  </div>
-);
+  </div>;
+
 
 const MockCard = ({
   label,
@@ -105,12 +105,12 @@ const MockCard = ({
   tint,
   checkColor,
   tasks,
-  warning,
-}: (typeof CARDS)[number]) => (
-  <div
-    className="w-[220px] rounded-2xl border border-border p-4 hover:shadow-lg hover:-translate-y-[2px] transition-all duration-200"
-    style={{ backgroundColor: tint, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
-  >
+  warning
+}: (typeof CARDS)[number]) =>
+<div
+  className="w-[220px] rounded-2xl border border-border p-4 hover:shadow-lg hover:-translate-y-[2px] transition-all duration-200"
+  style={{ backgroundColor: tint, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}>
+  
     <div className="flex items-center gap-2 mb-3">
       <span className={`w-2 h-2 rounded-full ${dotColor} shrink-0`} />
       <span className="text-[13px] font-semibold text-foreground">{label}</span>
@@ -119,13 +119,13 @@ const MockCard = ({
       </span>
     </div>
     <div className="flex flex-col">
-      {tasks.map((t, i) => (
-        <TaskRow key={i} text={t.text} done={t.done} checkColor={checkColor} />
-      ))}
+      {tasks.map((t, i) =>
+    <TaskRow key={i} text={t.text} done={t.done} checkColor={checkColor} />
+    )}
     </div>
     {warning && <p className="text-[11px] mt-2 text-threat">{warning}</p>}
-  </div>
-);
+  </div>;
+
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -134,8 +134,8 @@ const Index = () => {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (user) return <Navigate to="/dashboard" replace />;
@@ -144,7 +144,7 @@ const Index = () => {
     <div className="flex flex-col h-screen bg-background overflow-hidden">
       {/* Navbar */}
       <header className="w-full h-16 flex items-center justify-between px-6 shrink-0 relative z-50">
-        <span className="text-base font-semibold text-foreground">Quadra</span>
+        <span className="text-base font-semibold text-foreground font-mono">Quadra</span>
         <Link to="/auth">
           <Button variant="outline" size="sm" className="rounded-lg">
             Sign in
@@ -156,30 +156,30 @@ const Index = () => {
       <section className="relative flex-1 flex flex-col items-center justify-center overflow-hidden hero-gradient">
         {/* Desktop floating cards — tight orbit */}
         <div className="hidden lg:block">
-          {CARDS.map((card) => (
-            <div
-              key={card.label}
-              className={`absolute ${card.position}`}
-              style={{
-                animation: "floatCard 5s ease-in-out infinite",
-                animationDelay: card.delay,
-              }}
-            >
+          {CARDS.map((card) =>
+          <div
+            key={card.label}
+            className={`absolute ${card.position}`}
+            style={{
+              animation: "floatCard 5s ease-in-out infinite",
+              animationDelay: card.delay
+            }}>
+            
               <MockCard {...card} />
             </div>
-          ))}
+          )}
 
           {/* Micro-element: AI-classified pill */}
           <div
             className="absolute top-[8%] left-1/2 -translate-x-1/2 z-[5]"
             style={{
-              animation: "floatMicro 5s ease-in-out infinite",
-            }}
-          >
+              animation: "floatMicro 5s ease-in-out infinite"
+            }}>
+            
             <span
               className="inline-block text-[11px] font-medium text-muted-foreground bg-secondary px-3 py-1 rounded-full rotate-[2deg]"
-              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
-            >
+              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+              
               AI-classified
             </span>
           </div>
@@ -190,13 +190,13 @@ const Index = () => {
             className="absolute top-[52%] left-[calc(50%+200px)] z-[5] rotate-[2deg]"
             style={{
               animation: "floatMicro 5s ease-in-out infinite",
-              animationDelay: "3s",
-            }}
-          >
+              animationDelay: "3s"
+            }}>
+            
             <div
               className="bg-background border border-border rounded-[10px] px-3 py-2 text-[11px] text-muted-foreground"
-              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
-            >
+              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+              
               ✓ 12 tasks completed today
             </div>
           </div>
@@ -223,11 +223,11 @@ const Index = () => {
 
         {/* Mobile 2×2 grid */}
         <div className="lg:hidden grid grid-cols-2 gap-3 mt-12 px-6 w-full max-w-md">
-          {CARDS.map((card) => (
-            <div key={card.label} className="w-full">
+          {CARDS.map((card) =>
+          <div key={card.label} className="w-full">
               <MockCard {...card} />
             </div>
-          ))}
+          )}
         </div>
       </section>
 
@@ -244,8 +244,8 @@ const Index = () => {
           50% { translate: 0 -3px; }
         }
       `}</style>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Index;
