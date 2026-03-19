@@ -77,7 +77,7 @@ const Auth = () => {
           map(({ label, icon: Icon, color }) =>
           <div
             key={label}
-            className="flex flex-col items-center justify-center gap-2 p-4 bg-destructive-foreground text-primary-foreground"
+            className="flex flex-col items-center justify-center gap-2 p-4 text-primary-foreground bg-primary-foreground"
             style={{
               background: `linear-gradient(hsla(${color}, 0.05), hsla(${color}, 0.05)), hsl(230,14%,12%)`,
               borderLeft: `4px solid hsl(${color})`,
