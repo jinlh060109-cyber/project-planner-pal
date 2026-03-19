@@ -168,6 +168,53 @@ const Index = () => {
               <MockCard {...card} />
             </div>
           ))}
+
+          {/* Micro-element: AI-classified pill */}
+          <div
+            className="absolute top-[8%] left-1/2 -translate-x-1/2 z-[5]"
+            style={{
+              animation: "floatMicro 5s ease-in-out infinite",
+            }}
+          >
+            <span
+              className="inline-block text-[11px] font-medium text-muted-foreground bg-secondary px-3 py-1 rounded-full rotate-[2deg]"
+              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
+            >
+              AI-classified
+            </span>
+          </div>
+
+          {/* Micro-element: Balance bar */}
+          <div
+            className="absolute bottom-[8%] left-1/2 -translate-x-1/2 z-[5] -rotate-[1deg]"
+            style={{
+              animation: "floatMicro 5s ease-in-out infinite",
+              animationDelay: "2s",
+            }}
+          >
+            <div className="flex w-[100px] h-[5px] rounded-full overflow-hidden" style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+              <div className="bg-strength" style={{ width: "30%" }} />
+              <div className="bg-weakness" style={{ width: "20%" }} />
+              <div className="bg-opportunity" style={{ width: "30%" }} />
+              <div className="bg-threat" style={{ width: "20%" }} />
+            </div>
+          </div>
+
+          {/* Micro-element: Tasks completed */}
+          <div
+            className="absolute top-[52%] left-[calc(50%+200px)] z-[5] rotate-[2deg]"
+            style={{
+              animation: "floatMicro 5s ease-in-out infinite",
+              animationDelay: "3s",
+            }}
+          >
+            <div
+              className="bg-background border border-border rounded-[10px] px-3 py-2 text-[11px] text-muted-foreground"
+              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
+            >
+              ✓ 12 tasks completed today
+            </div>
+          </div>
         </div>
 
         {/* Hero content */}
