@@ -45,7 +45,7 @@ const CARDS = [
     tint: "rgba(59,130,246,0.04)",
     checkColor: "hsl(var(--opportunity))",
     // bottom-left, tight orbit
-    position: "bottom-[12%] left-[calc(50%-340px)] rotate-2 z-30",
+    position: "bottom-[12%] left-[calc(50%-340px)] rotate-[3deg] z-30",
     delay: "2.4s",
     tasks: [
       { text: "Apply to AI conference", done: true },
