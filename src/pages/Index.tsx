@@ -12,7 +12,7 @@ const CARDS = [
     tint: "rgba(34,197,94,0.04)",
     checkColor: "hsl(var(--strength))",
     // top-left, tight orbit
-    position: "top-[12%] left-[calc(50%-340px)] -rotate-3 z-10",
+    position: "top-[12%] left-[calc(50%-340px)] -rotate-[4deg] z-10",
     delay: "0s",
     tasks: [
       { text: "Lead team standup", done: false },
