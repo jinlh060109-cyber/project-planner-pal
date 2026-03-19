@@ -77,7 +77,7 @@ const Auth = () => {
           map(({ label, icon: Icon }) =>
           <div
             key={label}
-            className="flex flex-col items-center justify-center gap-2 py-4 border-2">
+            className="flex flex-col items-center justify-center gap-2 py-4 border-2 rounded-lg">
               <Icon className="h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
               <span className="text-sm text-foreground">{label}</span>
             </div>
