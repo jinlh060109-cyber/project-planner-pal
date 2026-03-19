@@ -1,42 +1,131 @@
 import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, Target, TrendingUp, AlertTriangle, ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
-const floatingCards = [
+const CARDS = [
   {
     label: "Strengths",
-    icon: Shield,
-    color: "border-l-strength",
-    tint: "bg-strength/5",
-    position: "top-[12%] -left-[40px] -rotate-3",
+    count: 3,
+    dotColor: "bg-strength",
+    borderColor: "border-l-strength",
+    tint: "rgba(34,197,94,0.04)",
+    checkColor: "hsl(var(--strength))",
+    position: "top-[8%] left-[calc(50%-380px)] -rotate-3 z-10",
     delay: "0s",
+    tasks: [
+      { text: "Lead team standup", done: false },
+      { text: "Client pitch deck", done: true },
+      { text: "Mentor new hire", done: false },
+    ],
+    warning: null,
   },
   {
     label: "Weaknesses",
-    icon: Target,
-    color: "border-l-weakness",
-    tint: "bg-weakness/5",
-    position: "top-[8%] -right-[40px] rotate-2",
-    delay: "1s",
+    count: 2,
+    dotColor: "bg-weakness",
+    borderColor: "border-l-weakness",
+    tint: "rgba(245,158,11,0.04)",
+    checkColor: "hsl(var(--weakness))",
+    position: "top-[8%] right-[calc(50%-380px)] rotate-2 z-20",
+    delay: "1.2s",
+    tasks: [
+      { text: "Practice public speaking", done: false },
+      { text: "Review financial reports", done: false },
+    ],
+    warning: null,
   },
   {
     label: "Opportunities",
-    icon: TrendingUp,
-    color: "border-l-opportunity",
-    tint: "bg-opportunity/5",
-    position: "bottom-[18%] -left-[20px] rotate-2",
-    delay: "2s",
+    count: 2,
+    dotColor: "bg-opportunity",
+    borderColor: "border-l-opportunity",
+    tint: "rgba(59,130,246,0.04)",
+    checkColor: "hsl(var(--opportunity))",
+    position: "bottom-[10%] left-[calc(50%-360px)] rotate-2 z-30",
+    delay: "2.4s",
+    tasks: [
+      { text: "Apply to AI conference", done: true },
+      { text: "Network with VCs at demo day", done: false },
+    ],
+    warning: null,
   },
   {
     label: "Threats",
-    icon: AlertTriangle,
-    color: "border-l-threat",
-    tint: "bg-threat/5",
-    position: "bottom-[8%] -right-[30px] -rotate-2",
-    delay: "3s",
+    count: 1,
+    dotColor: "bg-threat",
+    borderColor: "border-l-threat",
+    tint: "rgba(239,68,68,0.04)",
+    checkColor: "hsl(var(--threat))",
+    position: "bottom-[10%] right-[calc(50%-360px)] -rotate-2 z-40",
+    delay: "3.6s",
+    tasks: [{ text: "Deadline: tax filing", done: false }],
+    warning: "⚠ Due in 3 days",
   },
 ];
+
+const TaskRow = ({
+  text,
+  done,
+  checkColor,
+}: {
+  text: string;
+  done: boolean;
+  checkColor: string;
+}) => (
+  <div className="flex items-center gap-2 py-[3px]">
+    <div
+      className="w-[14px] h-[14px] rounded-full border shrink-0 flex items-center justify-center"
+      style={{
+        borderColor: done ? checkColor : "hsl(var(--border))",
+        backgroundColor: done ? checkColor : "transparent",
+      }}
+    >
+      {done && <Check className="w-[8px] h-[8px] text-white" strokeWidth={3} />}
+    </div>
+    <span
+      className={`text-[12px] leading-tight ${
+        done ? "text-muted-foreground line-through" : "text-foreground"
+      }`}
+    >
+      {text}
+    </span>
+  </div>
+);
+
+const MockCard = ({
+  label,
+  count,
+  dotColor,
+  borderColor,
+  tint,
+  checkColor,
+  tasks,
+  warning,
+}: (typeof CARDS)[number]) => (
+  <div
+    className={`w-[220px] rounded-2xl border border-border ${borderColor} border-l-4 p-4 hover:shadow-lg hover:-translate-y-[2px] transition-all duration-200`}
+    style={{ backgroundColor: tint, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
+  >
+    {/* Header */}
+    <div className="flex items-center gap-2 mb-3">
+      <span className={`w-2 h-2 rounded-full ${dotColor} shrink-0`} />
+      <span className="text-[13px] font-semibold text-foreground">{label}</span>
+      <span className="ml-auto text-[11px] font-medium text-foreground bg-secondary rounded-full px-2 py-0.5">
+        {count}
+      </span>
+    </div>
+    {/* Tasks */}
+    <div className="flex flex-col">
+      {tasks.map((t, i) => (
+        <TaskRow key={i} text={t.text} done={t.done} checkColor={checkColor} />
+      ))}
+    </div>
+    {warning && (
+      <p className="text-[11px] mt-2 text-threat">{warning}</p>
+    )}
+  </div>
+);
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -54,42 +143,69 @@ const Index = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Navbar */}
-      <header className="w-full h-16 flex items-center justify-between px-6 border-b border-border">
+      <header className="w-full h-16 flex items-center justify-between px-6 shrink-0 relative z-50">
         <span className="text-base font-semibold text-foreground">Quadra</span>
         <Link to="/auth">
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded-lg transition-colors duration-150 hover:bg-[hsl(0_0%_94%)]"
-          >
+          <Button variant="outline" size="sm" className="rounded-lg">
             Sign in
           </Button>
         </Link>
       </header>
 
       {/* Hero */}
-      <section className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden hero-gradient">
-        {/* Floating cards — desktop only */}
-        <div className="hidden md:block">
-          {floatingCards.map(({ label, icon: Icon, color, tint, position, delay }) => (
+      <section className="relative flex-1 flex flex-col items-center justify-center overflow-hidden hero-gradient">
+        {/* Desktop floating cards */}
+        <div className="hidden lg:block">
+          {CARDS.map((card) => (
             <div
-              key={label}
-              className={`absolute ${position} w-[180px] bg-background border border-border rounded-2xl ${color} border-l-4 p-5 flex flex-col items-center gap-2 ${tint} z-10`}
+              key={card.label}
+              className={`absolute ${card.position}`}
               style={{
-                boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
-                animation: `floatCard 4s ease-in-out infinite`,
-                animationDelay: delay,
+                animation: "floatCard 5s ease-in-out infinite",
+                animationDelay: card.delay,
               }}
             >
-              <Icon className="h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
-              <span className="text-sm font-medium text-foreground">{label}</span>
+              <MockCard {...card} />
             </div>
           ))}
+
+          {/* Micro-elements */}
+          <div
+            className="absolute top-[6%] left-1/2 -translate-x-1/2 z-50 rotate-1"
+            style={{ animation: "floatMicro 6s ease-in-out infinite" }}
+          >
+            <span className="inline-block bg-secondary text-muted-foreground text-[11px] font-medium px-3 py-1 rounded-full shadow-sm">
+              AI-powered
+            </span>
+          </div>
+
+          <div
+            className="absolute bottom-[7%] left-1/2 -translate-x-1/2 z-50 -rotate-1"
+            style={{ animation: "floatMicro 6s ease-in-out 1s infinite" }}
+          >
+            <div
+              className="flex h-[6px] w-[120px] rounded-full overflow-hidden shadow-sm"
+            >
+              <div className="w-[30%] bg-strength" />
+              <div className="w-[20%] bg-weakness" />
+              <div className="w-[30%] bg-opportunity" />
+              <div className="w-[20%] bg-threat" />
+            </div>
+          </div>
+
+          <div
+            className="absolute bottom-[30%] left-1/2 translate-x-[60px] z-50 rotate-1"
+            style={{ animation: "floatMicro 6s ease-in-out 2s infinite" }}
+          >
+            <div className="bg-background border border-border rounded-xl px-3 py-2 shadow-sm">
+              <span className="text-[11px] text-muted-foreground">✓ 12 tasks completed</span>
+            </div>
+          </div>
         </div>
 
         {/* Hero content */}
-        <div className="relative z-20 flex flex-col items-center text-center px-6">
-          <h1 className="!text-4xl md:!text-[56px] !leading-tight">
+        <div className="relative z-[45] flex flex-col items-center text-center px-6">
+          <h1 className="!text-4xl lg:!text-[56px] !leading-tight">
             <span className="font-semibold text-foreground">Align your day</span>
             <br />
             <span className="font-normal text-muted-foreground">with your strategy.</span>
@@ -107,33 +223,18 @@ const Index = () => {
           </Link>
         </div>
 
-        {/* Mobile fallback: 2×2 grid */}
-        <div className="md:hidden grid grid-cols-2 gap-4 mt-12 px-6 w-full max-w-sm">
-          {floatingCards.map(({ label, icon: Icon, color, tint }) => (
-            <div
-              key={label}
-              className={`bg-background border border-border rounded-2xl ${color} border-l-4 p-5 flex flex-col items-center gap-2 ${tint}`}
-              style={{ boxShadow: "0 8px 30px rgba(0,0,0,0.08)" }}
-            >
-              <Icon className="h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
-              <span className="text-sm font-medium text-foreground">{label}</span>
+        {/* Mobile 2×2 grid */}
+        <div className="lg:hidden grid grid-cols-2 gap-3 mt-12 px-6 w-full max-w-md">
+          {CARDS.map((card) => (
+            <div key={card.label} className="w-full">
+              <MockCard {...card} />
             </div>
           ))}
         </div>
       </section>
 
-      {/* Below the fold */}
-      <section className="py-20 px-6 flex flex-col items-center max-w-[800px] mx-auto">
-        <div className="w-full aspect-video rounded-xl border border-border bg-muted flex items-center justify-center shadow-lg">
-          <span className="text-muted-foreground text-sm">Dashboard preview</span>
-        </div>
-        <p className="mt-8 text-xl font-medium text-foreground text-center">
-          Your strategy, visualized.
-        </p>
-      </section>
-
       {/* Footer */}
-      <footer className="w-full border-t border-border py-6">
+      <footer className="w-full border-t border-border py-6 shrink-0">
         <p className="text-center text-[13px] text-muted-foreground">
           Quadra — Strategic daily planning
         </p>
@@ -141,11 +242,15 @@ const Index = () => {
 
       <style>{`
         .hero-gradient {
-          background: radial-gradient(ellipse at center, hsl(0 0% 100%) 0%, hsl(0 0% 94%) 100%);
+          background: radial-gradient(ellipse at center, hsl(0 0% 100%) 0%, hsl(0 0% 96%) 100%);
         }
         @keyframes floatCard {
           0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-6px); }
+          50% { transform: translateY(-4px); }
+        }
+        @keyframes floatMicro {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-2px); }
         }
       `}</style>
     </div>
