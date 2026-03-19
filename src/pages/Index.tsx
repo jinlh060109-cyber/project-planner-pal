@@ -12,7 +12,7 @@ const CARDS = [
     tint: "rgba(34,197,94,0.04)",
     checkColor: "hsl(var(--strength))",
     // top-left, tight orbit
-    position: "top-[12%] left-[calc(50%-340px)] -rotate-3 z-10",
+    position: "top-[12%] left-[calc(50%-340px)] -rotate-[4deg] z-10",
     delay: "0s",
     tasks: [
       { text: "Lead team standup", done: false },
@@ -29,7 +29,7 @@ const CARDS = [
     tint: "rgba(245,158,11,0.04)",
     checkColor: "hsl(var(--weakness))",
     // top-right, tight orbit
-    position: "top-[12%] left-[calc(50%+120px)] rotate-2 z-20",
+    position: "top-[12%] left-[calc(50%+120px)] rotate-[3deg] z-20",
     delay: "1.2s",
     tasks: [
       { text: "Practice public speaking", done: false },
@@ -45,7 +45,7 @@ const CARDS = [
     tint: "rgba(59,130,246,0.04)",
     checkColor: "hsl(var(--opportunity))",
     // bottom-left, tight orbit
-    position: "bottom-[12%] left-[calc(50%-340px)] rotate-2 z-30",
+    position: "bottom-[12%] left-[calc(50%-340px)] rotate-[3deg] z-30",
     delay: "2.4s",
     tasks: [
       { text: "Apply to AI conference", done: true },
@@ -61,7 +61,7 @@ const CARDS = [
     tint: "rgba(239,68,68,0.04)",
     checkColor: "hsl(var(--threat))",
     // bottom-right, tight orbit
-    position: "bottom-[12%] left-[calc(50%+120px)] -rotate-2 z-40",
+    position: "bottom-[12%] left-[calc(50%+120px)] -rotate-[3deg] z-40",
     delay: "3.6s",
     tasks: [{ text: "Deadline: tax filing", done: false }],
     warning: "⚠ Due in 3 days",
@@ -108,7 +108,7 @@ const MockCard = ({
   warning,
 }: (typeof CARDS)[number]) => (
   <div
-    className={`w-[220px] rounded-2xl border border-border ${borderColor} border-l-4 p-4 hover:shadow-lg hover:-translate-y-[2px] transition-all duration-200`}
+    className="w-[220px] rounded-2xl border border-border p-4 hover:shadow-lg hover:-translate-y-[2px] transition-all duration-200"
     style={{ backgroundColor: tint, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
   >
     <div className="flex items-center gap-2 mb-3">
@@ -168,6 +168,53 @@ const Index = () => {
               <MockCard {...card} />
             </div>
           ))}
+
+          {/* Micro-element: AI-classified pill */}
+          <div
+            className="absolute top-[8%] left-1/2 -translate-x-1/2 z-[5]"
+            style={{
+              animation: "floatMicro 5s ease-in-out infinite",
+            }}
+          >
+            <span
+              className="inline-block text-[11px] font-medium text-muted-foreground bg-secondary px-3 py-1 rounded-full rotate-[2deg]"
+              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
+            >
+              AI-classified
+            </span>
+          </div>
+
+          {/* Micro-element: Balance bar */}
+          <div
+            className="absolute bottom-[8%] left-1/2 -translate-x-1/2 z-[5] -rotate-[1deg]"
+            style={{
+              animation: "floatMicro 5s ease-in-out infinite",
+              animationDelay: "2s",
+            }}
+          >
+            <div className="flex w-[100px] h-[5px] rounded-full overflow-hidden" style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+              <div className="bg-strength" style={{ width: "30%" }} />
+              <div className="bg-weakness" style={{ width: "20%" }} />
+              <div className="bg-opportunity" style={{ width: "30%" }} />
+              <div className="bg-threat" style={{ width: "20%" }} />
+            </div>
+          </div>
+
+          {/* Micro-element: Tasks completed */}
+          <div
+            className="absolute top-[52%] left-[calc(50%+200px)] z-[5] rotate-[2deg]"
+            style={{
+              animation: "floatMicro 5s ease-in-out infinite",
+              animationDelay: "3s",
+            }}
+          >
+            <div
+              className="bg-background border border-border rounded-[10px] px-3 py-2 text-[11px] text-muted-foreground"
+              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
+            >
+              ✓ 12 tasks completed today
+            </div>
+          </div>
         </div>
 
         {/* Hero content */}
@@ -179,8 +226,7 @@ const Index = () => {
           </h1>
 
           <p className="mt-6 text-base font-normal text-muted-foreground max-w-[520px]">
-            Categorise daily tasks by Strengths, Weaknesses, Opportunities, and
-            Threats — and build balance into every day.
+            Your to-do list has no strategy. This one does.
           </p>
 
           <Link to="/auth" className="mt-8">
@@ -207,6 +253,10 @@ const Index = () => {
         @keyframes floatCard {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-4px); }
+        }
+        @keyframes floatMicro {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-3px); }
         }
       `}</style>
     </div>
