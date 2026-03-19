@@ -153,7 +153,7 @@ const Index = () => {
       </header>
 
       {/* Hero — fills remaining viewport */}
-      <section className="relative flex-1 flex flex-col items-center justify-center overflow-hidden hero-gradient rounded-2xl mx-4 mb-4">
+      <section className="relative flex-1 flex flex-col items-center justify-center overflow-hidden hero-gradient">
         {/* Desktop floating cards — tight orbit */}
         <div className="hidden lg:block">
           {CARDS.map((card) =>
