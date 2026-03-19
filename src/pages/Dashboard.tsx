@@ -150,7 +150,7 @@ const Dashboard = () => {
           duration: Infinity,
         });
       } else if (data) {
-        setTasks(data as Task[]);
+        setTasks(data.map(d => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null })) as Task[]);
       }
       setIsLoading(false);
     };
