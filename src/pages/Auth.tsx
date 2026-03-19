@@ -68,24 +68,18 @@ const Auth = () => {
         <p className="text-lg text-muted-foreground mb-12 max-w-md">
           Categorise daily tasks by Strengths, Weaknesses, Opportunities, and Threats — and build balance into every day.
         </p>
-        <div className="grid grid-cols-2 gap-4 max-w-sm">
+        <div className="grid grid-cols-2 gap-6 max-w-xs">
           {[
-          { label: "Strengths", icon: Shield, color: "142,71%,45%" },
-          { label: "Weaknesses", icon: Target, color: "38,92%,50%" },
-          { label: "Opportunities", icon: TrendingUp, color: "217,91%,60%" },
-          { label: "Threats", icon: AlertTriangle, color: "0,84%,60%" }].
-          map(({ label, icon: Icon, color }) =>
+          { label: "Strengths", icon: Shield },
+          { label: "Weaknesses", icon: Target },
+          { label: "Opportunities", icon: TrendingUp },
+          { label: "Threats", icon: AlertTriangle }].
+          map(({ label, icon: Icon }) =>
           <div
             key={label}
-            className="flex flex-col items-center justify-center gap-2 p-4 text-primary-foreground bg-primary-foreground"
-            style={{
-              background: `linear-gradient(hsla(${color}, 0.05), hsla(${color}, 0.05)), hsl(230,14%,12%)`,
-              borderLeft: `4px solid hsl(${color})`,
-              borderRadius: 12
-            }}>
-            
-              <Icon className="h-5 w-5 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground font-serif">{label}</span>
+            className="flex flex-col items-center justify-center gap-2 py-4">
+              <Icon className="h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
+              <span className="text-sm text-foreground">{label}</span>
             </div>
           )}
         </div>
