@@ -61,7 +61,7 @@ const CARDS = [
     tint: "rgba(239,68,68,0.04)",
     checkColor: "hsl(var(--threat))",
     // bottom-right, tight orbit
-    position: "bottom-[12%] left-[calc(50%+120px)] -rotate-2 z-40",
+    position: "bottom-[12%] left-[calc(50%+120px)] -rotate-[3deg] z-40",
     delay: "3.6s",
     tasks: [{ text: "Deadline: tax filing", done: false }],
     warning: "⚠ Due in 3 days",
