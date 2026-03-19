@@ -108,7 +108,7 @@ const MockCard = ({
   warning,
 }: (typeof CARDS)[number]) => (
   <div
-    className={`w-[220px] rounded-2xl border border-border ${borderColor} border-l-4 p-4 hover:shadow-lg hover:-translate-y-[2px] transition-all duration-200`}
+    className="w-[220px] rounded-2xl border border-border p-4 hover:shadow-lg hover:-translate-y-[2px] transition-all duration-200"
     style={{ backgroundColor: tint, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
   >
     <div className="flex items-center gap-2 mb-3">
