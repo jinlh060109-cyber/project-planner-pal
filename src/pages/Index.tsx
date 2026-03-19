@@ -184,21 +184,6 @@ const Index = () => {
             </span>
           </div>
 
-          {/* Micro-element: Balance bar */}
-          <div
-            className="absolute bottom-[8%] left-1/2 -translate-x-1/2 z-[5] -rotate-[1deg]"
-            style={{
-              animation: "floatMicro 5s ease-in-out infinite",
-              animationDelay: "2s",
-            }}
-          >
-            <div className="flex w-[100px] h-[5px] rounded-full overflow-hidden" style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-              <div className="bg-strength" style={{ width: "30%" }} />
-              <div className="bg-weakness" style={{ width: "20%" }} />
-              <div className="bg-opportunity" style={{ width: "30%" }} />
-              <div className="bg-threat" style={{ width: "20%" }} />
-            </div>
-          </div>
 
           {/* Micro-element: Tasks completed */}
           <div
