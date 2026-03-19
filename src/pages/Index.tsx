@@ -236,12 +236,12 @@ const Index = () => {
           background: radial-gradient(ellipse at center, hsl(0 0% 100%) 0%, hsl(0 0% 96%) 100%);
         }
         @keyframes floatCard {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
+          0%, 100% { translate: 0 0; }
+          50% { translate: 0 -4px; }
         }
         @keyframes floatMicro {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-3px); }
+          0%, 100% { translate: 0 0; }
+          50% { translate: 0 -3px; }
         }
       `}</style>
     </div>
