@@ -54,7 +54,7 @@ const TaskMoveMenu = ({ currentQuadrant, onMove, isMoving }: TaskMoveMenuProps) 
 
       {open && (
         <div
-          className="absolute right-0 top-full mt-1 z-50 min-w-[200px] rounded-xl border border-[hsl(228,12%,17%)] bg-[hsl(228,18%,13%)] p-1 shadow-xl animate-fade-in"
+          className="absolute right-0 top-full mt-1 z-50 min-w-[200px] rounded-xl border border-border bg-popover p-1 shadow-xl animate-fade-in"
           style={{ animationDuration: "150ms" }}
         >
           {QUADRANT_OPTIONS.map(({ key, letter, label, dotColor }) => {
@@ -72,7 +72,7 @@ const TaskMoveMenu = ({ currentQuadrant, onMove, isMoving }: TaskMoveMenuProps) 
                   "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
                   isCurrent
                     ? "text-muted-foreground/40 cursor-not-allowed"
-                    : "text-foreground hover:bg-secondary"
+                    : "text-popover-foreground hover:bg-secondary"
                 )}
               >
                 <span className={cn("h-2 w-2 rounded-full shrink-0", dotColor, isCurrent && "opacity-40")} />
