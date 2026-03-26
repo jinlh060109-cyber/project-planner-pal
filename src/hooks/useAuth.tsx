@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Set up listener first, then check existing session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
@@ -30,9 +31,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
+    // Only set loading false from getSession if onAuthStateChange hasn't fired yet
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+      // onAuthStateChange will handle the state; this is a fallback
+      setSession((prev) => prev ?? session);
+      setUser((prev) => prev ?? session?.user ?? null);
       setLoading(false);
     });
 

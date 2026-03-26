@@ -12,7 +12,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
 
   try {
-    const { taskContent } = await req.json();
+    const { taskContent, taskDate } = await req.json();
     if (!taskContent?.trim()) {
       return new Response(
         JSON.stringify({ error: "Task content is required" }),
@@ -252,18 +252,24 @@ PRIORITY RULES:
     classification.quadrant = mappedQuadrant;
 
     // Insert task
+    const insertData: Record<string, unknown> = {
+      user_id: user.id,
+      content: taskContent.trim(),
+      quadrant: classification.quadrant,
+      reasoning: classification.reasoning,
+      priority: classification.priority,
+      matched_skill: classification.matched_skill || null,
+      skill_reasoning: classification.skill_reasoning || null,
+      is_completed: false,
+    };
+    // Use client-provided local date if available
+    if (taskDate && /^\d{4}-\d{2}-\d{2}$/.test(taskDate)) {
+      insertData.task_date = taskDate;
+    }
+
     const { data: task, error: insertError } = await supabase
       .from("tasks")
-      .insert({
-        user_id: user.id,
-        content: taskContent.trim(),
-        quadrant: classification.quadrant,
-        reasoning: classification.reasoning,
-        priority: classification.priority,
-        matched_skill: classification.matched_skill || null,
-        skill_reasoning: classification.skill_reasoning || null,
-        is_completed: false,
-      })
+      .insert(insertData)
       .select()
       .single();
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -97,32 +98,43 @@ const getFormattedDate = () =>
     month: "long",
   });
 
-const getTodayISO = () => new Date().toISOString().split("T")[0];
+const getTodayISO = () => {
+  const now = new Date();
+  const offset = now.getTimezoneOffset();
+  return new Date(now.getTime() - offset * 60 * 1000).toISOString().split("T")[0];
+};
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const todayISO = getTodayISO();
   const formattedDate = getFormattedDate();
   const [taskInput, setTaskInput] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
 
-  // Fetch avatar
+  // Fetch avatar using React Query pattern for cache/invalidation
+  const { data: profileData } = useQuery({
+    queryKey: ["dashboard-profile", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("avatar_url, display_name")
+        .eq("user_id", user!.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("avatar_url, display_name")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
-        if (data) {
-          setAvatarUrl(data.avatar_url);
-          setDisplayName(data.display_name);
-        }
-      });
-  }, [user]);
+    if (profileData) {
+      setAvatarUrl(profileData.avatar_url);
+      setDisplayName(profileData.display_name);
+    }
+  }, [profileData]);
   const [isClassifying, setIsClassifying] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -139,7 +151,7 @@ const Dashboard = () => {
         .select("*")
         .eq("user_id", user.id)
         .eq("is_completed", false)
-        .eq("task_date", getTodayISO())
+        .eq("task_date", todayISO)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -147,7 +159,7 @@ const Dashboard = () => {
         toast({
           title: "Couldn't load your tasks — please refresh",
           variant: "destructive",
-          duration: Infinity,
+          duration: 10000,
         });
       } else if (data) {
         setTasks(data.map(d => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null })) as Task[]);
@@ -155,7 +167,7 @@ const Dashboard = () => {
       setIsLoading(false);
     };
     fetchTasks();
-  }, [user, toast]);
+  }, [user, toast, todayISO]);
 
   const handleAddTask = useCallback(async () => {
     const text = taskInput.trim();
@@ -166,7 +178,7 @@ const Dashboard = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke("classify-task", {
-        body: { taskContent: text },
+        body: { taskContent: text, taskDate: getTodayISO() },
       });
 
       if (error) throw new Error(error.message);
@@ -228,7 +240,7 @@ const Dashboard = () => {
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || ((e.metaKey || e.ctrlKey) && e.key === "Enter")) {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleAddTask();
     }
