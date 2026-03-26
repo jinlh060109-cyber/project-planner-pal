@@ -258,14 +258,6 @@ const TaskCard = ({
                   {task.reasoning}
                 </p>
               )}
-              {task.matched_skill && (
-                <span
-                  className="mt-1.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
-                  title={task.skill_reasoning || undefined}
-                >
-                  {task.matched_skill}
-                </span>
-              )}
             </>
           )}
         </div>
