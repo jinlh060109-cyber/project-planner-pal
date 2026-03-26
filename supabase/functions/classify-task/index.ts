@@ -79,7 +79,9 @@ serve(async (req) => {
     // Build skill names list for matching
     const skillNames = subSwots.map((s: any) => s.name);
 
-    const systemPrompt = `You are a Strategic Life Analyst. Your sole job is to classify a task into exactly ONE SWOT quadrant based strictly on the user's personal profile below.
+    const systemPrompt = `You are a Strategic Life Analyst. You have two jobs:
+1. Rewrite the user's task into a clean, concise title (fix grammar, remove redundancy, keep intent — max 80 chars).
+2. Classify the task into exactly ONE SWOT quadrant based strictly on the user's personal profile below.
 
 USER PROFILE:
 - Role: ${profile?.role_situation || "Not specified"}
@@ -88,6 +90,14 @@ USER PROFILE:
 - Weaknesses: ${weaknesses.length ? weaknesses.join(", ") : "None specified"}
 - Opportunities: ${opportunities.length ? opportunities.join(", ") : "None specified"}
 - Threats: ${threats.length ? threats.join(", ") : "None specified"}${skillProfilesSection}
+
+TITLE REWRITING RULES:
+1. Fix grammar, spelling, and punctuation.
+2. Remove filler words and redundancy.
+3. Keep the original meaning and intent intact.
+4. Use action-oriented phrasing (start with a verb when natural).
+5. Maximum 80 characters.
+6. If the original is already clean, return it as-is.
 
 CLASSIFICATION RULES — read carefully before deciding:
 
@@ -107,10 +117,9 @@ TIEBREAKER RULE: If a task fits multiple quadrants, choose the quadrant whose pr
 
 REASONING RULES — strictly follow these:
 1. Your reasoning MUST reference a specific item from the profile (name the actual strength, weakness, opportunity, or threat).
-2. NEVER end reasoning with a reference to the north star objective unless the connection is direct and explicit.
-3. The north star objective is context only — mention it maximum once, only if genuinely relevant.
-4. Reasoning must be exactly 1 sentence. No more.
-5. Start reasoning with the profile item, not the task description.
+2. NEVER mention the north star objective in reasoning.
+3. Reasoning must be exactly 1 sentence. No more.
+4. Start reasoning with the profile item, not the task description.
 
 SKILL MATCHING RULES:
 1. If the task relates to a specific skill profile listed above, return the skill name in matched_skill.
