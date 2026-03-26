@@ -113,21 +113,27 @@ const Dashboard = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
 
-  // Fetch avatar
+  // Fetch avatar using React Query pattern for cache/invalidation
+  const { data: profileData } = useQuery({
+    queryKey: ["dashboard-profile", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("avatar_url, display_name")
+        .eq("user_id", user!.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("avatar_url, display_name")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
-        if (data) {
-          setAvatarUrl(data.avatar_url);
-          setDisplayName(data.display_name);
-        }
-      });
-  }, [user]);
+    if (profileData) {
+      setAvatarUrl(profileData.avatar_url);
+      setDisplayName(profileData.display_name);
+    }
+  }, [profileData]);
   const [isClassifying, setIsClassifying] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
