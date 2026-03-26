@@ -7,7 +7,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  const { data: profile, isLoading: profileLoading } = useQuery({
+  const { data: profile, isLoading: profileLoading, isError } = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -19,6 +19,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       return data;
     },
     enabled: !!user,
+    retry: 2,
   });
 
   if (loading || (user && profileLoading)) {
