@@ -37,7 +37,7 @@ const BalanceIndicator = ({ tasks }: BalanceIndicatorProps) => {
     <div className="px-4 py-3 shrink-0">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <span className="text-[13px] text-muted-foreground mb-2 block">
+        <span className="text-[13px] text-muted-foreground mb-2 block text-center">
           Today's Balance
         </span>
 
