@@ -77,7 +77,7 @@ const BalanceIndicator = ({ tasks }: BalanceIndicatorProps) => {
             </div>
 
             {/* Legend */}
-            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 justify-center">
               {SEGMENTS.map(({ key, letter, label, color }) =>
             <div key={key} className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
                   <span
