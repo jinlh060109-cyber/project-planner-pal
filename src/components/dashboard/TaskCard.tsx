@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
-import { Check, MoreHorizontal, Pencil, Sparkles, Trash2, Loader2, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, MoreHorizontal, Pencil, Sparkles, Trash2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -33,23 +33,19 @@ const TaskCard = ({
   const config = QUADRANT_CONFIG[task.quadrant];
   const priority = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.Medium;
 
-  // Menu state
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Edit state
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.content);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Reclassify state
   const [isReclassifying, setIsReclassifying] = useState(false);
 
-  // Delete confirmation state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isBreaking, setIsBreaking] = useState(false);
 
-  // Close menu on outside click
   useEffect(() => {
     if (!menuOpen) return;
     const handler = (e: MouseEvent) => {
@@ -90,7 +86,6 @@ const TaskCard = ({
     setMenuOpen(false);
     setIsReclassifying(true);
     try {
-      // Call classify-task — it creates a new task row
       const { data, error } = await supabase.functions.invoke("classify-task", {
         body: { taskContent: task.content, taskDate: getTodayISO() },
       });
@@ -99,7 +94,6 @@ const TaskCard = ({
 
       const reclassified = data.task as Task;
 
-      // Copy classification to the original task
       const { error: updateError } = await supabase
         .from("tasks")
         .update({
@@ -111,7 +105,6 @@ const TaskCard = ({
         })
         .eq("id", task.id);
 
-      // Delete the duplicate created by the edge function
       if (reclassified.id && reclassified.id !== task.id) {
         await supabase.from("tasks").delete().eq("id", reclassified.id);
       }
@@ -144,62 +137,97 @@ const TaskCard = ({
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     } else {
-      onDelete(task.id);
+      // Trigger break animation, then remove from list
+      setShowDeleteConfirm(false);
+      setIsBreaking(true);
+      setTimeout(() => onDelete(task.id), 500);
     }
   }, [task.id, toast, onDelete]);
+
+  // Determine framer-motion animate values
+  const getAnimateState = () => {
+    if (isBreaking) {
+      return {
+        opacity: 0,
+        scale: 0.6,
+        rotateZ: (Math.random() > 0.5 ? 1 : -1) * 8,
+        filter: "blur(4px)",
+        y: 20,
+      };
+    }
+    if (isCompleting) {
+      return {
+        opacity: 0.4,
+        scale: 0.96,
+        y: 0,
+      };
+    }
+    return {
+      opacity: isMoving ? 0.7 : 1,
+      scale: 1,
+      y: 0,
+      rotateZ: 0,
+      filter: "blur(0px)",
+    };
+  };
 
   return (
     <motion.div
       layout
       layoutId={task.id}
       initial={{ opacity: 0, scale: 0.95, y: 8 }}
-      animate={{
-        opacity: isMoving ? 0.7 : isCompleting ? 0.5 : 1,
-        scale: 1,
-        y: 0,
-      }}
-      exit={{ opacity: 0, scale: 0.92, y: -8 }}
+      animate={getAnimateState()}
+      exit={{ opacity: 0, scale: 0.85, y: -12, filter: "blur(2px)" }}
       transition={{
         layout: { type: "spring", stiffness: 350, damping: 30 },
-        opacity: { duration: 0.25, ease: "easeOut" },
-        scale: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] },
-        y: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] },
+        opacity: { duration: isBreaking ? 0.4 : 0.25, ease: "easeOut" },
+        scale: { duration: isBreaking ? 0.4 : 0.25, ease: [0.25, 0.1, 0.25, 1] },
+        rotateZ: { duration: 0.35, ease: "easeOut" },
+        filter: { duration: 0.4, ease: "easeOut" },
+        y: { duration: isBreaking ? 0.4 : 0.25, ease: [0.25, 0.1, 0.25, 1] },
       }}
       className={cn(
         "group relative rounded-xl border-l-4 bg-card p-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-shadow",
         config.borderColor,
-        isCompleting && "line-through",
         isReclassifying && "animate-pulse"
       )}
     >
       {/* Delete confirmation overlay */}
-      {showDeleteConfirm && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-card/95 backdrop-blur-sm">
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-sm font-medium text-foreground">Delete this task?</p>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={handleDeleteConfirm}
-                disabled={isDeleting}
-                className="text-xs h-7 px-3"
-              >
-                {isDeleting ? <Loader2 className="h-3 w-3 animate-spin" /> : "Yes, delete"}
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={isDeleting}
-                className="text-xs h-7 px-3 text-muted-foreground"
-              >
-                Cancel
-              </Button>
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-card/95 backdrop-blur-sm"
+          >
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-sm font-medium text-foreground">Delete this task?</p>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={handleDeleteConfirm}
+                  disabled={isDeleting}
+                  className="text-xs h-7 px-3"
+                >
+                  {isDeleting ? <Loader2 className="h-3 w-3 animate-spin" /> : "Yes, delete"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                  className="text-xs h-7 px-3 text-muted-foreground"
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="flex items-start gap-3">
         {/* Checkbox */}
@@ -207,11 +235,23 @@ const TaskCard = ({
           onClick={() => onComplete(task.id)}
           disabled={isCompleting || isEditing}
           className={cn(
-            "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-muted-foreground/30 transition-colors",
-            isCompleting && config.checkColor + " border-transparent"
+            "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300",
+            isCompleting
+              ? "border-transparent bg-[hsl(var(--strength))] scale-110"
+              : "border-muted-foreground/30 hover:border-muted-foreground/50"
           )}
         >
-          {isCompleting && <Check className="h-3 w-3 text-primary-foreground" />}
+          <AnimatePresence>
+            {isCompleting && (
+              <motion.span
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 15 }}
+              >
+                <Check className="h-3 w-3 text-primary-foreground" />
+              </motion.span>
+            )}
+          </AnimatePresence>
         </button>
 
         {/* Content */}
@@ -245,7 +285,10 @@ const TaskCard = ({
             </div>
           ) : (
             <>
-              <p className={cn("text-sm font-semibold text-foreground", isCompleting && "line-through")}>
+              <p className={cn(
+                "text-sm font-semibold text-foreground transition-all duration-300",
+                isCompleting && "line-through text-muted-foreground"
+              )}>
                 {task.content}
               </p>
               {task.reasoning && (
@@ -265,7 +308,6 @@ const TaskCard = ({
         {/* Actions (right side) */}
         {!isEditing && (
           <>
-            {/* Overflow menu */}
             <div ref={menuRef} className="relative">
               <button
                 onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v); }}
@@ -289,14 +331,14 @@ const TaskCard = ({
                 >
                   <button
                     onClick={handleEdit}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-secondary transition-colors"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-popover-foreground hover:bg-secondary transition-colors"
                   >
                     <Pencil className="h-3.5 w-3.5" /> Edit
                   </button>
                   <button
                     onClick={handleReclassify}
                     disabled={isReclassifying}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-secondary transition-colors disabled:opacity-50"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-popover-foreground hover:bg-secondary transition-colors disabled:opacity-50"
                   >
                     <Sparkles className="h-3.5 w-3.5" /> Re-classify
                   </button>
@@ -310,14 +352,12 @@ const TaskCard = ({
               )}
             </div>
 
-            {/* Move menu */}
             <TaskMoveMenu
               currentQuadrant={task.quadrant}
               onMove={(newQ) => onMove(task.id, newQ)}
               isMoving={isMoving}
             />
 
-            {/* Priority badge */}
             <span className={cn("shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium", priority.bg, priority.text)}>
               {task.priority}
             </span>
