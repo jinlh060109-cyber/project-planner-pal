@@ -237,6 +237,7 @@ PRIORITY RULES:
 
     // Extract from tool call
     let classification: {
+      refined_title: string;
       quadrant: string;
       reasoning: string;
       priority: string;
