@@ -160,7 +160,7 @@ const Dashboard = () => {
       setIsLoading(false);
     };
     fetchTasks();
-  }, [user, toast]);
+  }, [user, toast, todayISO]);
 
   const handleAddTask = useCallback(async () => {
     const text = taskInput.trim();
