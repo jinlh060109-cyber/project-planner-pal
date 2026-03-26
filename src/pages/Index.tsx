@@ -233,7 +233,7 @@ const Index = () => {
 
       <style>{`
         .hero-gradient {
-          background: radial-gradient(ellipse at center, hsl(0 0% 100%) 0%, hsl(0 0% 96%) 100%);
+          background: radial-gradient(ellipse at center, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
         }
         @keyframes floatCard {
           0%, 100% { translate: 0 0; }

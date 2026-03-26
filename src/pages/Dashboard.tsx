@@ -178,7 +178,7 @@ const Dashboard = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke("classify-task", {
-        body: { taskContent: text },
+        body: { taskContent: text, taskDate: getTodayISO() },
       });
 
       if (error) throw new Error(error.message);

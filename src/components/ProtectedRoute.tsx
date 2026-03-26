@@ -32,6 +32,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!user) return <Navigate to="/auth" replace />;
 
+  // Profile fetch error — show recovery UI
+  if (isError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center space-y-3">
+          <p className="text-muted-foreground">Something went wrong loading your profile.</p>
+          <button onClick={() => window.location.reload()} className="text-primary underline text-sm">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Wait for profile data before making routing decisions
   if (!profile) {
     return (
