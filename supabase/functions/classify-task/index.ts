@@ -160,10 +160,15 @@ PRIORITY RULES:
               function: {
                 name: "classify_task",
                 description:
-                  "Classify a task into a SWOT quadrant with reasoning and priority.",
+                  "Rewrite the task title and classify it into a SWOT quadrant.",
                 parameters: {
                   type: "object",
                   properties: {
+                    refined_title: {
+                      type: "string",
+                      description:
+                        "Clean, concise rewrite of the task title (max 80 chars).",
+                    },
                     quadrant: {
                       type: "string",
                       enum: ["S", "W", "O", "T"],
@@ -190,7 +195,7 @@ PRIORITY RULES:
                         "One sentence explaining the skill match, or null if none.",
                     },
                   },
-                  required: ["quadrant", "reasoning", "priority", "matched_skill", "skill_reasoning"],
+                  required: ["refined_title", "quadrant", "reasoning", "priority", "matched_skill", "skill_reasoning"],
                   additionalProperties: false,
                 },
               },
