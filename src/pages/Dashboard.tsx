@@ -1,95 +1,24 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { LogOut, Plus, Loader2, Check } from "lucide-react";
+import { LogOut } from "lucide-react";
 import BalanceIndicator from "@/components/BalanceIndicator";
-import TaskMoveMenu from "@/components/TaskMoveMenu";
+import TaskCard from "@/components/dashboard/TaskCard";
+import TaskInputBar from "@/components/dashboard/TaskInputBar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-
-type Quadrant = "strength" | "weakness" | "opportunity" | "threat";
-
-interface Task {
-  id: string;
-  content: string;
-  quadrant: Quadrant;
-  reasoning: string | null;
-  priority: string;
-  matched_skill: string | null;
-  skill_reasoning: string | null;
-  is_completed: boolean;
-  created_at: string;
-}
-
-const QUADRANT_CONFIG: Record<
-  Quadrant,
-  {
-    letter: string;
-    label: string;
-    borderColor: string;
-    bgTint: string;
-    emptyText: string;
-    accentHsl: string;
-    checkColor: string;
-  }
-> = {
-  strength: {
-    letter: "S",
-    label: "Strengths",
-    borderColor: "border-l-[hsl(var(--strength))]",
-    bgTint: "bg-[hsl(142,71%,45%,0.05)]",
-    emptyText: "Add a task that builds your strengths",
-    accentHsl: "142 71% 45%",
-    checkColor: "bg-[hsl(var(--strength))]",
-  },
-  weakness: {
-    letter: "W",
-    label: "Weaknesses",
-    borderColor: "border-l-[hsl(var(--weakness))]",
-    bgTint: "bg-[hsl(38,92%,50%,0.05)]",
-    emptyText: "Add a task that closes a gap",
-    accentHsl: "38 92% 50%",
-    checkColor: "bg-[hsl(var(--weakness))]",
-  },
-  opportunity: {
-    letter: "O",
-    label: "Opportunities",
-    borderColor: "border-l-[hsl(var(--opportunity))]",
-    bgTint: "bg-[hsl(217,91%,60%,0.05)]",
-    emptyText: "Add a task that captures an opportunity",
-    accentHsl: "217 91% 60%",
-    checkColor: "bg-[hsl(var(--opportunity))]",
-  },
-  threat: {
-    letter: "T",
-    label: "Threats",
-    borderColor: "border-l-[hsl(var(--threat))]",
-    bgTint: "bg-[hsl(0,84%,60%,0.05)]",
-    emptyText: "Add a task that protects your position",
-    accentHsl: "0 84% 60%",
-    checkColor: "bg-[hsl(var(--threat))]",
-  },
-};
-
-const DOT_COLORS: Record<Quadrant, string> = {
-  strength: "bg-[hsl(var(--strength))]",
-  weakness: "bg-[hsl(var(--weakness))]",
-  opportunity: "bg-[hsl(var(--opportunity))]",
-  threat: "bg-[hsl(var(--threat))]",
-};
-
-const PRIORITY_STYLES: Record<string, { bg: string; text: string }> = {
-  High: { bg: "bg-[hsl(0,84%,60%,0.15)]", text: "text-[hsl(0,84%,60%)]" },
-  Medium: { bg: "bg-[hsl(38,92%,50%,0.15)]", text: "text-[hsl(38,92%,50%)]" },
-  Low: { bg: "bg-[hsl(142,71%,45%,0.15)]", text: "text-[hsl(142,71%,45%)]" },
-};
+import type { Task, Quadrant } from "@/components/dashboard/types";
+import {
+  QUADRANT_CONFIG,
+  DOT_COLORS,
+  PRIORITY_ORDER,
+  getTodayISO,
+} from "@/components/dashboard/types";
 
 const getFormattedDate = () =>
   new Date().toLocaleDateString("en-GB", {
@@ -98,23 +27,13 @@ const getFormattedDate = () =>
     month: "long",
   });
 
-const getTodayISO = () => {
-  const now = new Date();
-  const offset = now.getTimezoneOffset();
-  return new Date(now.getTime() - offset * 60 * 1000).toISOString().split("T")[0];
-};
-
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const todayISO = getTodayISO();
   const formattedDate = getFormattedDate();
-  const [taskInput, setTaskInput] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState<string | null>(null);
 
-  // Fetch avatar using React Query pattern for cache/invalidation
   const { data: profileData } = useQuery({
     queryKey: ["dashboard-profile", user?.id],
     queryFn: async () => {
@@ -129,13 +48,9 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
-  useEffect(() => {
-    if (profileData) {
-      setAvatarUrl(profileData.avatar_url);
-      setDisplayName(profileData.display_name);
-    }
-  }, [profileData]);
-  const [isClassifying, setIsClassifying] = useState(false);
+  const avatarUrl = profileData?.avatar_url ?? null;
+  const displayName = profileData?.display_name ?? null;
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [completingIds, setCompletingIds] = useState<Set<string>>(new Set());
@@ -156,147 +71,66 @@ const Dashboard = () => {
 
       if (error) {
         console.error("Failed to load tasks:", error);
-        toast({
-          title: "Couldn't load your tasks — please refresh",
-          variant: "destructive",
-          duration: 10000,
-        });
+        toast({ title: "Couldn't load your tasks — please refresh", variant: "destructive", duration: 10000 });
       } else if (data) {
-        setTasks(data.map(d => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null })) as Task[]);
+        setTasks(data.map((d) => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null })) as Task[]);
       }
       setIsLoading(false);
     };
     fetchTasks();
   }, [user, toast, todayISO]);
 
-  const handleAddTask = useCallback(async () => {
-    const text = taskInput.trim();
-    if (!text || isClassifying) return;
-
-    setTaskInput("");
-    setIsClassifying(true);
-
-    try {
-      const { data, error } = await supabase.functions.invoke("classify-task", {
-        body: { taskContent: text, taskDate: getTodayISO() },
-      });
-
-      if (error) throw new Error(error.message);
-      if (data?.error) throw new Error(data.error);
-
-      const newTask = data.task as Task;
-      setTasks((prev) => [newTask, ...prev]);
-
-      const config = QUADRANT_CONFIG[newTask.quadrant as Quadrant];
-      toast({
-        title: `Classified → ${config?.label || newTask.quadrant}`,
-        duration: 3000,
-      });
-    } catch (e: any) {
-      console.error("Classification error:", e);
-      toast({
-        title: "Classification failed — please try again",
-        description: e.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsClassifying(false);
-    }
-  }, [taskInput, isClassifying, toast]);
-
   const handleCompleteTask = useCallback(
     async (taskId: string) => {
       setCompletingIds((prev) => new Set(prev).add(taskId));
-
-      const { error } = await supabase
-        .from("tasks")
-        .update({ is_completed: true })
-        .eq("id", taskId);
-
+      const { error } = await supabase.from("tasks").update({ is_completed: true }).eq("id", taskId);
       if (error) {
-        setCompletingIds((prev) => {
-          const next = new Set(prev);
-          next.delete(taskId);
-          return next;
-        });
-        toast({
-          title: "Couldn't complete task — try again",
-          variant: "destructive",
-        });
+        setCompletingIds((prev) => { const n = new Set(prev); n.delete(taskId); return n; });
+        toast({ title: "Couldn't complete task — try again", variant: "destructive" });
         return;
       }
-
-      // Wait for fade animation
       setTimeout(() => {
         setTasks((prev) => prev.filter((t) => t.id !== taskId));
-        setCompletingIds((prev) => {
-          const next = new Set(prev);
-          next.delete(taskId);
-          return next;
-        });
+        setCompletingIds((prev) => { const n = new Set(prev); n.delete(taskId); return n; });
       }, 800);
     },
     [toast]
   );
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleAddTask();
-    }
-  };
-
   const handleMoveTask = useCallback(
     async (taskId: string, newQuadrant: Quadrant) => {
       const task = tasks.find((t) => t.id === taskId);
       if (!task || task.quadrant === newQuadrant) return;
+      const orig = { quadrant: task.quadrant, reasoning: task.reasoning };
 
-      const originalQuadrant = task.quadrant;
-      const originalReasoning = task.reasoning;
-
-      // Optimistic update
       setMovingIds((prev) => new Set(prev).add(taskId));
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.id === taskId
-            ? { ...t, quadrant: newQuadrant, reasoning: "Manually classified" }
-            : t
-        )
-      );
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, quadrant: newQuadrant, reasoning: "Manually classified" } : t)));
 
-      const { error } = await supabase
-        .from("tasks")
-        .update({ quadrant: newQuadrant, reasoning: "Manually classified" })
-        .eq("id", taskId);
-
-      setMovingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(taskId);
-        return next;
-      });
+      const { error } = await supabase.from("tasks").update({ quadrant: newQuadrant, reasoning: "Manually classified" }).eq("id", taskId);
+      setMovingIds((prev) => { const n = new Set(prev); n.delete(taskId); return n; });
 
       if (error) {
-        // Revert
-        setTasks((prev) =>
-          prev.map((t) =>
-            t.id === taskId
-              ? { ...t, quadrant: originalQuadrant as Quadrant, reasoning: originalReasoning }
-              : t
-          )
-        );
-        toast({
-          title: "Couldn't move task — try again",
-          variant: "destructive",
-        });
+        setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, quadrant: orig.quadrant as Quadrant, reasoning: orig.reasoning } : t)));
+        toast({ title: "Couldn't move task — try again", variant: "destructive" });
       } else {
-        const config = QUADRANT_CONFIG[newQuadrant];
-        toast({ title: `Moved to ${config.label}`, duration: 3000 });
+        toast({ title: `Moved to ${QUADRANT_CONFIG[newQuadrant].label}`, duration: 3000 });
       }
     },
     [tasks, toast]
   );
 
-  const PRIORITY_ORDER: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
+  const handleDeleteTask = useCallback((taskId: string) => {
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+  }, []);
+
+  const handleUpdateTask = useCallback((updated: Task) => {
+    setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+  }, []);
+
+  const handleTaskAdded = useCallback((task: Task) => {
+    setTasks((prev) => [task, ...prev]);
+  }, []);
+
   const tasksByQuadrant = (q: Quadrant) =>
     tasks
       .filter((t) => t.quadrant === q)
@@ -306,13 +140,9 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top bar */}
       <header className="border-b border-border px-6 py-4 flex items-center justify-between shrink-0">
-        <h1 className="text-xl font-display font-bold text-foreground">
-          Today's Strategy
-        </h1>
+        <h1 className="text-xl font-display font-bold text-foreground">Today's Strategy</h1>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground hidden sm:block">
-            {formattedDate}
-          </span>
+          <span className="text-sm text-muted-foreground hidden sm:block">{formattedDate}</span>
           <button
             onClick={() => navigate("/profile")}
             className="h-8 w-8 rounded-full overflow-hidden shrink-0 ring-2 ring-transparent hover:ring-primary/50 transition-all"
@@ -325,12 +155,7 @@ const Dashboard = () => {
               </div>
             )}
           </button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={signOut}
-            className="text-muted-foreground"
-          >
+          <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground">
             <LogOut className="h-4 w-4" />
           </Button>
         </div>
@@ -346,7 +171,6 @@ const Dashboard = () => {
               key={q}
               className={`rounded-xl border border-border border-l-4 ${config.borderColor} ${config.bgTint} p-6 flex flex-col min-h-[200px] md:min-h-0`}
             >
-              {/* Card header */}
               <div className="flex items-center gap-2 mb-4">
                 <span className={`w-2 h-2 rounded-full ${DOT_COLORS[q]}`} />
                 <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
@@ -354,7 +178,6 @@ const Dashboard = () => {
                 </span>
               </div>
 
-              {/* Task cards, loading, or empty state */}
               {isLoading ? (
                 <div className="flex-1 flex flex-col gap-2">
                   {[0, 1].map((i) => (
@@ -372,107 +195,23 @@ const Dashboard = () => {
                 </div>
               ) : qTasks.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center border border-dashed border-border rounded-lg">
-                  <p className="text-sm text-muted-foreground italic">
-                    {config.emptyText}
-                  </p>
+                  <p className="text-sm text-muted-foreground italic">{config.emptyText}</p>
                 </div>
               ) : (
                 <div className="flex-1 flex flex-col gap-2 overflow-auto">
                   <AnimatePresence mode="popLayout">
-                  {qTasks.map((task) => {
-                    const isCompleting = completingIds.has(task.id);
-                    const priority = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.Medium;
-                    const isMoving = movingIds.has(task.id);
-                    return (
-                      <motion.div
+                    {qTasks.map((task) => (
+                      <TaskCard
                         key={task.id}
-                        layout
-                        layoutId={task.id}
-                        initial={{ opacity: 0, scale: 0.95, y: 8 }}
-                        animate={{
-                          opacity: isMoving ? 0.7 : isCompleting ? 0.5 : 1,
-                          scale: 1,
-                          y: 0,
-                        }}
-                        exit={{ opacity: 0, scale: 0.92, y: -8 }}
-                        transition={{
-                          layout: { type: "spring", stiffness: 350, damping: 30 },
-                          opacity: { duration: 0.25, ease: "easeOut" },
-                          scale: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] },
-                          y: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] },
-                        }}
-                        className={cn(
-                          "group relative rounded-xl border-l-4 bg-card p-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5",
-                          config.borderColor,
-                          isCompleting && "line-through"
-                        )}
-                      >
-                        <div className="flex items-start gap-3">
-                          {/* Checkbox */}
-                          <button
-                            onClick={() => handleCompleteTask(task.id)}
-                            disabled={isCompleting}
-                            className={cn(
-                              "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-muted-foreground/30 transition-colors",
-                              isCompleting && config.checkColor + " border-transparent"
-                            )}
-                          >
-                            {isCompleting && (
-                              <Check className="h-3 w-3 text-primary-foreground" />
-                            )}
-                          </button>
-
-                          {/* Text */}
-                          <div className="flex-1 min-w-0">
-                            <p
-                              className={cn(
-                                "text-sm font-semibold text-foreground",
-                                isCompleting && "line-through"
-                              )}
-                            >
-                              {task.content}
-                            </p>
-                            {task.reasoning && (
-                              <p className={cn(
-                                "mt-1 text-[13px] leading-snug",
-                                task.reasoning === "Manually classified"
-                                  ? "text-muted-foreground italic"
-                                  : "text-muted-foreground"
-                              )}>
-                                {task.reasoning}
-                              </p>
-                            )}
-                            {task.matched_skill && (
-                              <span
-                                className="mt-1.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
-                                title={task.skill_reasoning || undefined}
-                              >
-                                {task.matched_skill}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Move menu */}
-                          <TaskMoveMenu
-                            currentQuadrant={task.quadrant}
-                            onMove={(newQ) => handleMoveTask(task.id, newQ)}
-                            isMoving={isMoving}
-                          />
-
-                          {/* Priority badge */}
-                          <span
-                            className={cn(
-                              "shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium",
-                              priority.bg,
-                              priority.text
-                            )}
-                          >
-                            {task.priority}
-                          </span>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                        task={task}
+                        isCompleting={completingIds.has(task.id)}
+                        isMoving={movingIds.has(task.id)}
+                        onComplete={handleCompleteTask}
+                        onMove={handleMoveTask}
+                        onDelete={handleDeleteTask}
+                        onUpdate={handleUpdateTask}
+                      />
+                    ))}
                   </AnimatePresence>
                 </div>
               )}
@@ -481,48 +220,8 @@ const Dashboard = () => {
         })}
       </main>
 
-      {/* Balance indicator */}
       <BalanceIndicator tasks={tasks} />
-
-      {/* Bottom input bar */}
-      <div className="border-t border-border px-4 py-3 shrink-0">
-        <div className="max-w-3xl mx-auto flex gap-2 items-center">
-          <div className="relative flex-1">
-            <Input
-              value={taskInput}
-              onChange={(e) => setTaskInput(e.target.value.slice(0, 200))}
-              onKeyDown={handleKeyDown}
-              placeholder="What do you need to do today?"
-              maxLength={200}
-              className="pr-20 transition-colors duration-200 focus-visible:ring-primary"
-              disabled={isClassifying}
-            />
-            <Badge
-              variant="secondary"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] px-1.5 py-0.5 font-mono text-muted-foreground pointer-events-none"
-            >
-              ⌘ Enter
-            </Badge>
-          </div>
-          <Button
-            onClick={handleAddTask}
-            disabled={!taskInput.trim() || isClassifying}
-            className="shrink-0"
-          >
-            {isClassifying ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Classifying...
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4" />
-                Add Task
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
+      <TaskInputBar onTaskAdded={handleTaskAdded} />
     </div>
   );
 };
