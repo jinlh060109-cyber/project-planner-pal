@@ -90,6 +90,7 @@ const TaskCard = ({
     setMenuOpen(false);
     setIsReclassifying(true);
     try {
+      // Call classify-task — it creates a new task row
       const { data, error } = await supabase.functions.invoke("classify-task", {
         body: { taskContent: task.content, taskDate: getTodayISO() },
       });
@@ -97,22 +98,21 @@ const TaskCard = ({
       if (data?.error) throw new Error(data.error);
 
       const reclassified = data.task as Task;
-      // Update in DB — the edge function already inserted a new row, so delete old and use new
-      // Actually the edge function inserts a NEW task. We need to delete the old one and use new.
-      // Better approach: update the existing task with new classification
+
+      // Copy classification to the original task
       const { error: updateError } = await supabase
         .from("tasks")
         .update({
           quadrant: reclassified.quadrant,
           reasoning: reclassified.reasoning,
           priority: reclassified.priority,
-          matched_skill: (reclassified as any).matched_skill || null,
-          skill_reasoning: (reclassified as any).skill_reasoning || null,
+          matched_skill: reclassified.matched_skill || null,
+          skill_reasoning: reclassified.skill_reasoning || null,
         })
         .eq("id", task.id);
 
-      // Delete the duplicate task the edge function created
-      if (reclassified.id !== task.id) {
+      // Delete the duplicate created by the edge function
+      if (reclassified.id && reclassified.id !== task.id) {
         await supabase.from("tasks").delete().eq("id", reclassified.id);
       }
 
