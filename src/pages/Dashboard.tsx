@@ -107,6 +107,7 @@ const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const todayISO = getTodayISO();
   const formattedDate = getFormattedDate();
   const [taskInput, setTaskInput] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
