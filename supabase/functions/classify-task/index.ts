@@ -12,7 +12,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
 
   try {
-    const { taskContent } = await req.json();
+    const { taskContent, taskDate } = await req.json();
     if (!taskContent?.trim()) {
       return new Response(
         JSON.stringify({ error: "Task content is required" }),
