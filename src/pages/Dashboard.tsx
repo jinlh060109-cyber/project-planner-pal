@@ -144,7 +144,7 @@ const Dashboard = () => {
         .select("*")
         .eq("user_id", user.id)
         .eq("is_completed", false)
-        .eq("task_date", getTodayISO())
+        .eq("task_date", todayISO)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -152,7 +152,7 @@ const Dashboard = () => {
         toast({
           title: "Couldn't load your tasks — please refresh",
           variant: "destructive",
-          duration: Infinity,
+          duration: 10000,
         });
       } else if (data) {
         setTasks(data.map(d => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null })) as Task[]);
