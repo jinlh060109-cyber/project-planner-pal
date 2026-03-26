@@ -97,7 +97,11 @@ const getFormattedDate = () =>
     month: "long",
   });
 
-const getTodayISO = () => new Date().toISOString().split("T")[0];
+const getTodayISO = () => {
+  const now = new Date();
+  const offset = now.getTimezoneOffset();
+  return new Date(now.getTime() - offset * 60 * 1000).toISOString().split("T")[0];
+};
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
