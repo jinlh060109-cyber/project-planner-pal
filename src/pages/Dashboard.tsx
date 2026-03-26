@@ -233,7 +233,7 @@ const Dashboard = () => {
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || ((e.metaKey || e.ctrlKey) && e.key === "Enter")) {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleAddTask();
     }
