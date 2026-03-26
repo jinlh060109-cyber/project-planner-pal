@@ -269,7 +269,7 @@ PRIORITY RULES:
     // Insert task
     const insertData: Record<string, unknown> = {
       user_id: user.id,
-      content: taskContent.trim(),
+      content: classification.refined_title || taskContent.trim(),
       quadrant: classification.quadrant,
       reasoning: classification.reasoning,
       priority: classification.priority,
