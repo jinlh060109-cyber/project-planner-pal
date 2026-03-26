@@ -167,9 +167,11 @@ export type Database = {
           created_at: string
           id: string
           is_completed: boolean
+          matched_skill: string | null
           priority: string
           quadrant: string
           reasoning: string | null
+          skill_reasoning: string | null
           task_date: string
           updated_at: string
           user_id: string
@@ -179,9 +181,11 @@ export type Database = {
           created_at?: string
           id?: string
           is_completed?: boolean
+          matched_skill?: string | null
           priority?: string
           quadrant: string
           reasoning?: string | null
+          skill_reasoning?: string | null
           task_date?: string
           updated_at?: string
           user_id: string
@@ -191,9 +195,11 @@ export type Database = {
           created_at?: string
           id?: string
           is_completed?: boolean
+          matched_skill?: string | null
           priority?: string
           quadrant?: string
           reasoning?: string | null
+          skill_reasoning?: string | null
           task_date?: string
           updated_at?: string
           user_id?: string
