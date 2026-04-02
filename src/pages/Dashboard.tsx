@@ -197,29 +197,51 @@ const Dashboard = () => {
     month: "long",
   });
 
+  const { theme, cycleTheme } = useTheme();
+  const themeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
+  const ThemeIcon = themeIcon;
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top bar */}
-      <header className="border-b border-border px-6 py-4 flex items-center justify-between shrink-0">
-        <h1 className="text-xl font-display font-bold text-foreground">Today's Strategy</h1>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground hidden sm:block">{formattedDate}</span>
-          <button
-            onClick={() => navigate("/profile")}
-            className="h-8 w-8 rounded-full overflow-hidden shrink-0 ring-2 ring-transparent hover:ring-primary/50 transition-all"
-          >
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="Profile" className="h-full w-full object-cover" />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center bg-primary text-primary-foreground text-xs font-bold">
-                {displayName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "?"}
-              </div>
-            )}
-          </button>
-          <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground">
-            <LogOut className="h-4 w-4" />
-          </Button>
+      <header className="border-b border-border px-6 py-4 shrink-0">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-display font-bold text-foreground">Today's Strategy</h1>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground hidden sm:block">{formattedDate}</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={cycleTheme} className="text-muted-foreground h-8 w-8">
+                  <ThemeIcon className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p className="text-xs capitalize">{theme} mode</p>
+              </TooltipContent>
+            </Tooltip>
+            <button
+              onClick={() => navigate("/profile")}
+              className="h-8 w-8 rounded-full overflow-hidden shrink-0 ring-2 ring-transparent hover:ring-primary/50 transition-all"
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Profile" className="h-full w-full object-cover" />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center bg-primary text-primary-foreground text-xs font-bold">
+                  {displayName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "?"}
+                </div>
+              )}
+            </button>
+            <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
+        {northStar && (
+          <div className="flex items-center gap-1.5 mt-2">
+            <Star className="h-3.5 w-3.5 text-[hsl(38,92%,50%)]" fill="currentColor" />
+            <span className="text-sm text-muted-foreground">{northStar}</span>
+          </div>
+        )}
       </header>
 
       {/* View toggle + Date nav */}
