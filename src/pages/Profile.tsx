@@ -25,9 +25,8 @@ interface ProfileData {
   avatar_url: string | null;
 }
 
-const THEME_OPTIONS: { value: "light" | "system" | "dark"; label: string; icon: typeof Sun }[] = [
+const THEME_OPTIONS: { value: "light" | "dark"; label: string; icon: typeof Sun }[] = [
   { value: "light", label: "Light", icon: Sun },
-  { value: "system", label: "System", icon: Monitor },
   { value: "dark", label: "Dark", icon: Moon },
 ];
 
