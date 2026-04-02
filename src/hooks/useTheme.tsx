@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from "rea
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-type Theme = "light" | "system" | "dark";
+type Theme = "light" | "dark";
 
 interface ThemeContextValue {
   theme: Theme;
@@ -11,7 +11,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: "system",
+  theme: "light",
   setTheme: () => {},
   cycleTheme: () => {},
 });
@@ -22,21 +22,14 @@ const applyTheme = (theme: Theme) => {
   const root = document.documentElement;
   if (theme === "dark") {
     root.classList.add("dark");
-  } else if (theme === "light") {
-    root.classList.remove("dark");
   } else {
-    // system
-    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
+    root.classList.remove("dark");
   }
 };
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
-  const [theme, setThemeState] = useState<Theme>("system");
+  const [theme, setThemeState] = useState<Theme>("light");
 
   // Load theme from profile
   useEffect(() => {
@@ -47,22 +40,12 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
-        if (data?.theme_preference) {
-          const t = data.theme_preference as Theme;
-          setThemeState(t);
-          applyTheme(t);
+        if (data?.theme_preference && (data.theme_preference === "light" || data.theme_preference === "dark")) {
+          setThemeState(data.theme_preference);
+          applyTheme(data.theme_preference);
         }
       });
   }, [user]);
-
-  // Listen for system preference changes
-  useEffect(() => {
-    if (theme !== "system") return;
-    const mql = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = () => applyTheme("system");
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, [theme]);
 
   // Apply on mount
   useEffect(() => {
@@ -85,9 +68,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const cycleTheme = useCallback(() => {
-    const order: Theme[] = ["light", "system", "dark"];
-    const next = order[(order.indexOf(theme) + 1) % order.length];
-    setTheme(next);
+    setTheme(theme === "light" ? "dark" : "light");
   }, [theme, setTheme]);
 
   return (

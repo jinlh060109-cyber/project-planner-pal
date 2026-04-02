@@ -6,7 +6,7 @@ import { format, startOfWeek, addDays } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, Star, Sun, Moon, Monitor } from "lucide-react";
+import { LogOut, Star, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import BalanceIndicator from "@/components/BalanceIndicator";
@@ -198,8 +198,7 @@ const Dashboard = () => {
   });
 
   const { theme, cycleTheme } = useTheme();
-  const themeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
-  const ThemeIcon = themeIcon;
+  const ThemeIcon = theme === "dark" ? Moon : Sun;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
