@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
+import { format, startOfWeek, addDays } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,8 @@ import { LogOut } from "lucide-react";
 import BalanceIndicator from "@/components/BalanceIndicator";
 import TaskCard from "@/components/dashboard/TaskCard";
 import TaskInputBar from "@/components/dashboard/TaskInputBar";
+import DateNavBar from "@/components/dashboard/DateNavBar";
+import WeekView from "@/components/dashboard/WeekView";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -17,23 +20,30 @@ import {
   QUADRANT_CONFIG,
   DOT_COLORS,
   PRIORITY_ORDER,
-  getTodayISO,
 } from "@/components/dashboard/types";
 
-const getFormattedDate = () =>
-  new Date().toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
+/** Get YYYY-MM-DD from a Date using local timezone */
+const toLocalISO = (d: Date) => {
+  const offset = d.getTimezoneOffset();
+  return new Date(d.getTime() - offset * 60 * 1000).toISOString().split("T")[0];
+};
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const todayISO = getTodayISO();
-  const formattedDate = getFormattedDate();
 
+  // View mode
+  const [viewMode, setViewMode] = useState<"day" | "week">("day");
+
+  // Selected date for day view
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const selectedISO = toLocalISO(selectedDate);
+
+  // Week view state
+  const [weekStart, setWeekStart] = useState<Date>(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
+
+  // Profile
   const { data: profileData } = useQuery({
     queryKey: ["dashboard-profile", user?.id],
     queryFn: async () => {
@@ -51,14 +61,15 @@ const Dashboard = () => {
   const avatarUrl = profileData?.avatar_url ?? null;
   const displayName = profileData?.display_name ?? null;
 
+  // Day view tasks
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [completingIds, setCompletingIds] = useState<Set<string>>(new Set());
   const [movingIds, setMovingIds] = useState<Set<string>>(new Set());
 
-  // Fetch tasks on mount
+  // Fetch day tasks
   useEffect(() => {
-    if (!user) return;
+    if (!user || viewMode !== "day") return;
     const fetchTasks = async () => {
       setIsLoading(true);
       const { data, error } = await supabase
@@ -66,11 +77,10 @@ const Dashboard = () => {
         .select("*")
         .eq("user_id", user.id)
         .eq("is_completed", false)
-        .eq("task_date", todayISO)
+        .eq("task_date", selectedISO)
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Failed to load tasks:", error);
         toast({ title: "Couldn't load your tasks — please refresh", variant: "destructive", duration: 10000 });
       } else if (data) {
         setTasks(data.map((d) => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null })) as Task[]);
@@ -78,8 +88,50 @@ const Dashboard = () => {
       setIsLoading(false);
     };
     fetchTasks();
-  }, [user, toast, todayISO]);
+  }, [user, toast, selectedISO, viewMode]);
 
+  // Week view tasks
+  const [weekTasks, setWeekTasks] = useState<Task[]>([]);
+  const [isWeekLoading, setIsWeekLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user || viewMode !== "week") return;
+    const fetchWeekTasks = async () => {
+      setIsWeekLoading(true);
+      const weekEnd = addDays(weekStart, 6);
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("user_id", user.id)
+        .gte("task_date", toLocalISO(weekStart))
+        .lte("task_date", toLocalISO(weekEnd))
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        toast({ title: "Couldn't load week tasks", variant: "destructive" });
+      } else if (data) {
+        setWeekTasks(data.map((d) => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null })) as Task[]);
+      }
+      setIsWeekLoading(false);
+    };
+    fetchWeekTasks();
+  }, [user, toast, weekStart, viewMode]);
+
+  // When switching to week view, sync weekStart to selectedDate
+  const handleViewChange = (mode: "day" | "week") => {
+    if (mode === "week") {
+      setWeekStart(startOfWeek(selectedDate, { weekStartsOn: 1 }));
+    }
+    setViewMode(mode);
+  };
+
+  // Go to day from week view
+  const handleGoToDay = (date: Date) => {
+    setSelectedDate(date);
+    setViewMode("day");
+  };
+
+  // Task handlers (day view)
   const handleCompleteTask = useCallback(
     async (taskId: string) => {
       setCompletingIds((prev) => new Set(prev).add(taskId));
@@ -136,6 +188,12 @@ const Dashboard = () => {
       .filter((t) => t.quadrant === q)
       .sort((a, b) => (PRIORITY_ORDER[a.priority] ?? 1) - (PRIORITY_ORDER[b.priority] ?? 1));
 
+  const formattedDate = new Date().toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top bar */}
@@ -161,67 +219,107 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* Quadrant grid */}
-      <main className="flex-1 p-4 grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0 overflow-auto">
-        {(Object.keys(QUADRANT_CONFIG) as Quadrant[]).map((q) => {
-          const config = QUADRANT_CONFIG[q];
-          const qTasks = tasksByQuadrant(q);
-          return (
-            <div
-              key={q}
-              className={`rounded-xl border border-border border-l-4 ${config.borderColor} ${config.bgTint} p-6 flex flex-col min-h-[200px] md:min-h-0`}
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <span className={`w-2 h-2 rounded-full ${DOT_COLORS[q]}`} />
-                <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
-                  {config.letter} — {config.label}
-                </span>
-              </div>
-
-              {isLoading ? (
-                <div className="flex-1 flex flex-col gap-2">
-                  {[0, 1].map((i) => (
-                    <div key={i} className={cn("rounded-xl border-l-4 bg-card p-4", config.borderColor)}>
-                      <div className="flex items-start gap-3">
-                        <Skeleton className="h-5 w-5 rounded-full shrink-0" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-3 w-1/2" />
-                        </div>
-                        <Skeleton className="h-5 w-14 rounded-full shrink-0" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : qTasks.length === 0 ? (
-                <div className="flex-1 flex items-center justify-center border border-dashed border-border rounded-lg">
-                  <p className="text-sm text-muted-foreground italic">{config.emptyText}</p>
-                </div>
-              ) : (
-                <div className="flex-1 flex flex-col gap-2 overflow-auto">
-                  <AnimatePresence mode="popLayout">
-                    {qTasks.map((task) => (
-                      <TaskCard
-                        key={task.id}
-                        task={task}
-                        isCompleting={completingIds.has(task.id)}
-                        isMoving={movingIds.has(task.id)}
-                        onComplete={handleCompleteTask}
-                        onMove={handleMoveTask}
-                        onDelete={handleDeleteTask}
-                        onUpdate={handleUpdateTask}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </div>
+      {/* View toggle + Date nav */}
+      <div className="flex items-center gap-2 px-6 py-2 border-b border-border shrink-0">
+        {/* Pill toggle */}
+        <div className="inline-flex rounded-lg border border-border p-0.5 bg-muted">
+          {(["day", "week"] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => handleViewChange(mode)}
+              className={cn(
+                "px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 capitalize",
+                viewMode === mode
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               )}
-            </div>
-          );
-        })}
-      </main>
+            >
+              {mode}
+            </button>
+          ))}
+        </div>
+      </div>
 
-      <BalanceIndicator tasks={tasks} />
-      <TaskInputBar onTaskAdded={handleTaskAdded} />
+      {viewMode === "day" && (
+        <DateNavBar selectedDate={selectedDate} onDateChange={setSelectedDate} />
+      )}
+
+      {/* Day view */}
+      {viewMode === "day" && (
+        <>
+          <main className="flex-1 p-4 grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0 overflow-auto">
+            {(Object.keys(QUADRANT_CONFIG) as Quadrant[]).map((q) => {
+              const config = QUADRANT_CONFIG[q];
+              const qTasks = tasksByQuadrant(q);
+              return (
+                <div
+                  key={q}
+                  className={`rounded-xl border border-border border-l-4 ${config.borderColor} ${config.bgTint} p-6 flex flex-col min-h-[200px] md:min-h-0`}
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className={`w-2 h-2 rounded-full ${DOT_COLORS[q]}`} />
+                    <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+                      {config.letter} — {config.label}
+                    </span>
+                  </div>
+
+                  {isLoading ? (
+                    <div className="flex-1 flex flex-col gap-2">
+                      {[0, 1].map((i) => (
+                        <div key={i} className={cn("rounded-xl border-l-4 bg-card p-4", config.borderColor)}>
+                          <div className="flex items-start gap-3">
+                            <Skeleton className="h-5 w-5 rounded-full shrink-0" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-4 w-3/4" />
+                              <Skeleton className="h-3 w-1/2" />
+                            </div>
+                            <Skeleton className="h-5 w-14 rounded-full shrink-0" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : qTasks.length === 0 ? (
+                    <div className="flex-1 flex items-center justify-center border border-dashed border-border rounded-lg">
+                      <p className="text-sm text-muted-foreground italic">{config.emptyText}</p>
+                    </div>
+                  ) : (
+                    <div className="flex-1 flex flex-col gap-2 overflow-auto">
+                      <AnimatePresence mode="popLayout">
+                        {qTasks.map((task) => (
+                          <TaskCard
+                            key={task.id}
+                            task={task}
+                            isCompleting={completingIds.has(task.id)}
+                            isMoving={movingIds.has(task.id)}
+                            onComplete={handleCompleteTask}
+                            onMove={handleMoveTask}
+                            onDelete={handleDeleteTask}
+                            onUpdate={handleUpdateTask}
+                          />
+                        ))}
+                      </AnimatePresence>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </main>
+
+          <BalanceIndicator tasks={tasks} />
+          <TaskInputBar onTaskAdded={handleTaskAdded} selectedDate={selectedDate} />
+        </>
+      )}
+
+      {/* Week view */}
+      {viewMode === "week" && (
+        <WeekView
+          tasks={weekTasks}
+          isLoading={isWeekLoading}
+          weekStart={weekStart}
+          onWeekChange={setWeekStart}
+          onGoToDay={handleGoToDay}
+        />
+      )}
     </div>
   );
 };
