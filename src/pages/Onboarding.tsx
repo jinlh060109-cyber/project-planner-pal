@@ -130,15 +130,18 @@ const Onboarding = () => {
           </div>
 
           {/* CTA */}
-          <div className="mt-8 flex justify-end">
+          <div className="mt-8 flex flex-col items-center gap-3">
             <Button
               onClick={handleSubmit}
               disabled={saving}
-              className="w-full bg-[#6366F1] text-white hover:bg-[#5558E6] md:w-auto"
+              className="w-full bg-[#6366F1] text-white hover:bg-[#5558E6] md:w-auto md:self-end"
             >
               {saving ? "Saving..." : "Continue"}
               {!saving && <ArrowRight className="ml-1 h-4 w-4" />}
             </Button>
+            <p className="text-[13px] text-muted-foreground text-center">
+              You can update this anytime in your Profile settings.
+            </p>
           </div>
         </div>
       </div>
