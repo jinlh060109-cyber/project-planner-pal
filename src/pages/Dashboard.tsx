@@ -198,8 +198,7 @@ const Dashboard = () => {
   });
 
   const { theme, cycleTheme } = useTheme();
-  const themeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
-  const ThemeIcon = themeIcon;
+  const ThemeIcon = theme === "dark" ? Moon : Sun;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
