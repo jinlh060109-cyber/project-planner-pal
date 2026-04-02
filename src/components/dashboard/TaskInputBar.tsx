@@ -21,9 +21,15 @@ const QUADRANT_PILLS: { key: Quadrant; letter: string; color: string }[] = [
 
 interface TaskInputBarProps {
   onTaskAdded: (task: Task) => void;
+  selectedDate?: Date;
 }
 
-const TaskInputBar = ({ onTaskAdded }: TaskInputBarProps) => {
+const toLocalISO = (d: Date) => {
+  const offset = d.getTimezoneOffset();
+  return new Date(d.getTime() - offset * 60 * 1000).toISOString().split("T")[0];
+};
+
+const TaskInputBar = ({ onTaskAdded, selectedDate }: TaskInputBarProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -51,7 +57,7 @@ const TaskInputBar = ({ onTaskAdded }: TaskInputBarProps) => {
     setIsClassifying(true);
     try {
       const { data, error } = await supabase.functions.invoke("classify-task", {
-        body: { taskContent: text, taskDate: getTodayISO() },
+        body: { taskContent: text, taskDate: selectedDate ? toLocalISO(selectedDate) : getTodayISO() },
       });
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
@@ -86,7 +92,7 @@ const TaskInputBar = ({ onTaskAdded }: TaskInputBarProps) => {
         reasoning,
         priority: "Medium",
         is_completed: false,
-        task_date: getTodayISO(),
+        task_date: selectedDate ? toLocalISO(selectedDate) : getTodayISO(),
       })
       .select()
       .single();
