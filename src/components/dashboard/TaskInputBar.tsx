@@ -21,9 +21,15 @@ const QUADRANT_PILLS: { key: Quadrant; letter: string; color: string }[] = [
 
 interface TaskInputBarProps {
   onTaskAdded: (task: Task) => void;
+  selectedDate?: Date;
 }
 
-const TaskInputBar = ({ onTaskAdded }: TaskInputBarProps) => {
+const toLocalISO = (d: Date) => {
+  const offset = d.getTimezoneOffset();
+  return new Date(d.getTime() - offset * 60 * 1000).toISOString().split("T")[0];
+};
+
+const TaskInputBar = ({ onTaskAdded, selectedDate }: TaskInputBarProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
 
