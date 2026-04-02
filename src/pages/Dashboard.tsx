@@ -86,7 +86,7 @@ const Dashboard = () => {
       if (error) {
         toast({ title: "Couldn't load your tasks — please refresh", variant: "destructive", duration: 10000 });
       } else if (data) {
-        setTasks(data.map((d) => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null })) as Task[]);
+        setTasks(data.map((d) => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null, objective_connection: (d as any).objective_connection ?? null })) as Task[]);
       }
       setIsLoading(false);
     };
