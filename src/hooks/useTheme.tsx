@@ -11,7 +11,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: "system",
+  theme: "light",
   setTheme: () => {},
   cycleTheme: () => {},
 });
