@@ -171,6 +171,7 @@ export type Database = {
           id: string
           is_completed: boolean
           matched_skill: string | null
+          objective_connection: string | null
           priority: string
           quadrant: string
           reasoning: string | null
@@ -185,6 +186,7 @@ export type Database = {
           id?: string
           is_completed?: boolean
           matched_skill?: string | null
+          objective_connection?: string | null
           priority?: string
           quadrant: string
           reasoning?: string | null
@@ -199,6 +201,7 @@ export type Database = {
           id?: string
           is_completed?: boolean
           matched_skill?: string | null
+          objective_connection?: string | null
           priority?: string
           quadrant?: string
           reasoning?: string | null
