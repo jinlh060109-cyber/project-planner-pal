@@ -205,7 +205,7 @@ PRIORITY RULES:
                         "One sentence describing how this task connects to the north star objective, or null if no meaningful connection.",
                     },
                   },
-                  required: ["refined_title", "quadrant", "reasoning", "priority", "matched_skill", "skill_reasoning"],
+                  required: ["refined_title", "quadrant", "reasoning", "priority", "matched_skill", "skill_reasoning", "objective_connection"],
                   additionalProperties: false,
                 },
               },
