@@ -117,9 +117,13 @@ TIEBREAKER RULE: If a task fits multiple quadrants, choose the quadrant whose pr
 
 REASONING RULES — strictly follow these:
 1. Your reasoning MUST reference a specific item from the profile (name the actual strength, weakness, opportunity, or threat).
-2. NEVER mention the north star objective in reasoning.
-3. Reasoning must be exactly 1 sentence. No more.
-4. Start reasoning with the profile item, not the task description.
+2. Reasoning must be exactly 1 sentence. No more.
+3. Start reasoning with the profile item, not the task description.
+
+NORTH STAR CONNECTION RULES:
+1. If the task has a clear connection to the user's north star objective, include a brief objective_connection sentence explaining the link.
+2. If no meaningful connection exists, set objective_connection to null.
+3. Do not force a connection — only include one when it's genuinely relevant.
 
 SKILL MATCHING RULES:
 1. If the task relates to a specific skill profile listed above, return the skill name in matched_skill.
