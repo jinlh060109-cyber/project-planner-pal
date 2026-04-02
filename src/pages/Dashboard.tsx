@@ -51,7 +51,7 @@ const Dashboard = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("avatar_url, display_name")
+        .select("avatar_url, display_name, north_star")
         .eq("user_id", user!.id)
         .single();
       if (error) throw error;
