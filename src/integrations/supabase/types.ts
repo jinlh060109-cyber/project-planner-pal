@@ -47,6 +47,7 @@ export type Database = {
           north_star: string | null
           onboarding_completed: boolean
           role_situation: string | null
+          theme_preference: string
           updated_at: string
           user_id: string
         }
@@ -58,6 +59,7 @@ export type Database = {
           north_star?: string | null
           onboarding_completed?: boolean
           role_situation?: string | null
+          theme_preference?: string
           updated_at?: string
           user_id: string
         }
@@ -69,6 +71,7 @@ export type Database = {
           north_star?: string | null
           onboarding_completed?: boolean
           role_situation?: string | null
+          theme_preference?: string
           updated_at?: string
           user_id?: string
         }
