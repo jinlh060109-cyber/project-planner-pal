@@ -253,6 +253,7 @@ PRIORITY RULES:
       priority: string;
       matched_skill: string | null;
       skill_reasoning: string | null;
+      objective_connection: string | null;
     };
     try {
       const toolCall = aiData.choices[0].message.tool_calls[0];
