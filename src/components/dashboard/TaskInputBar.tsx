@@ -57,7 +57,7 @@ const TaskInputBar = ({ onTaskAdded, selectedDate }: TaskInputBarProps) => {
     setIsClassifying(true);
     try {
       const { data, error } = await supabase.functions.invoke("classify-task", {
-        body: { taskContent: text, taskDate: getTodayISO() },
+        body: { taskContent: text, taskDate: selectedDate ? toLocalISO(selectedDate) : getTodayISO() },
       });
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
