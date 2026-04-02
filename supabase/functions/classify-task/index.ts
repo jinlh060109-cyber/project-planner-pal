@@ -198,6 +198,12 @@ PRIORITY RULES:
                       description:
                         "One sentence explaining the skill match, or null if none.",
                     },
+                    objective_connection: {
+                      type: "string",
+                      nullable: true,
+                      description:
+                        "One sentence describing how this task connects to the north star objective, or null if no meaningful connection.",
+                    },
                   },
                   required: ["refined_title", "quadrant", "reasoning", "priority", "matched_skill", "skill_reasoning"],
                   additionalProperties: false,
