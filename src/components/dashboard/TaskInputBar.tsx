@@ -92,7 +92,7 @@ const TaskInputBar = ({ onTaskAdded, selectedDate }: TaskInputBarProps) => {
         reasoning,
         priority: "Medium",
         is_completed: false,
-        task_date: getTodayISO(),
+        task_date: selectedDate ? toLocalISO(selectedDate) : getTodayISO(),
       })
       .select()
       .single();
