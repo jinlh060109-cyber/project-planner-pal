@@ -28,6 +28,7 @@ const applyTheme = (theme: Theme) => {
 };
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
   const [theme, setThemeState] = useState<Theme>("light");
 
   // Load theme from profile
@@ -39,22 +40,12 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
-        if (data?.theme_preference) {
-          const t = data.theme_preference as Theme;
-          setThemeState(t);
-          applyTheme(t);
+        if (data?.theme_preference && (data.theme_preference === "light" || data.theme_preference === "dark")) {
+          setThemeState(data.theme_preference);
+          applyTheme(data.theme_preference);
         }
       });
   }, [user]);
-
-  // Listen for system preference changes
-  useEffect(() => {
-    if (theme !== "system") return;
-    const mql = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = () => applyTheme("system");
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, [theme]);
 
   // Apply on mount
   useEffect(() => {
@@ -77,9 +68,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const cycleTheme = useCallback(() => {
-    const order: Theme[] = ["light", "system", "dark"];
-    const next = order[(order.indexOf(theme) + 1) % order.length];
-    setTheme(next);
+    setTheme(theme === "light" ? "dark" : "light");
   }, [theme, setTheme]);
 
   return (
