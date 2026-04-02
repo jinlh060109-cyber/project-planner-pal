@@ -301,6 +301,14 @@ const TaskCard = ({
                   {task.reasoning}
                 </p>
               )}
+              {task.objective_connection && (
+                <div className="mt-1.5 flex items-start gap-1.5">
+                  <Star className="h-3.5 w-3.5 text-[hsl(38,92%,50%)] shrink-0 mt-0.5" fill="currentColor" />
+                  <p className="text-[12px] text-muted-foreground italic leading-snug">
+                    {task.objective_connection}
+                  </p>
+                </div>
+              )}
             </>
           )}
         </div>
