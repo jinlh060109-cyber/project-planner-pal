@@ -8,6 +8,7 @@ export interface Task {
   priority: string;
   matched_skill: string | null;
   skill_reasoning: string | null;
+  objective_connection: string | null;
   is_completed: boolean;
   created_at: string;
 }

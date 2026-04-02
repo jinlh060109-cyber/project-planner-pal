@@ -286,6 +286,7 @@ PRIORITY RULES:
       priority: classification.priority,
       matched_skill: classification.matched_skill || null,
       skill_reasoning: classification.skill_reasoning || null,
+      objective_connection: classification.objective_connection || null,
       is_completed: false,
     };
     // Use client-provided local date if available
