@@ -322,6 +322,9 @@ const Profile = () => {
         {/* SECTION 5 — Projects */}
         <ProjectsSection />
 
+        {/* SECTION 6 — Appearance */}
+        <AppearanceSection />
+
         {/* SECTION 6 — Footer */}
         <section className="space-y-4">
           <div className="flex sm:justify-end">
