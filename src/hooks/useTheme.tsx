@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from "rea
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-type Theme = "light" | "system" | "dark";
+type Theme = "light" | "dark";
 
 interface ThemeContextValue {
   theme: Theme;
