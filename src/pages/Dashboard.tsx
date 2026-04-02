@@ -6,7 +6,9 @@ import { format, startOfWeek, addDays } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Star, Sun, Moon, Monitor } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import BalanceIndicator from "@/components/BalanceIndicator";
 import TaskCard from "@/components/dashboard/TaskCard";
 import TaskInputBar from "@/components/dashboard/TaskInputBar";
@@ -49,7 +51,7 @@ const Dashboard = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("avatar_url, display_name")
+        .select("avatar_url, display_name, north_star")
         .eq("user_id", user!.id)
         .single();
       if (error) throw error;
@@ -60,6 +62,7 @@ const Dashboard = () => {
 
   const avatarUrl = profileData?.avatar_url ?? null;
   const displayName = profileData?.display_name ?? null;
+  const northStar = profileData?.north_star ?? null;
 
   // Day view tasks
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -83,7 +86,7 @@ const Dashboard = () => {
       if (error) {
         toast({ title: "Couldn't load your tasks — please refresh", variant: "destructive", duration: 10000 });
       } else if (data) {
-        setTasks(data.map((d) => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null })) as Task[]);
+        setTasks(data.map((d) => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null, objective_connection: (d as any).objective_connection ?? null })) as Task[]);
       }
       setIsLoading(false);
     };
@@ -110,7 +113,7 @@ const Dashboard = () => {
       if (error) {
         toast({ title: "Couldn't load week tasks", variant: "destructive" });
       } else if (data) {
-        setWeekTasks(data.map((d) => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null })) as Task[]);
+        setWeekTasks(data.map((d) => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null, objective_connection: (d as any).objective_connection ?? null })) as Task[]);
       }
       setIsWeekLoading(false);
     };
@@ -194,29 +197,51 @@ const Dashboard = () => {
     month: "long",
   });
 
+  const { theme, cycleTheme } = useTheme();
+  const themeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
+  const ThemeIcon = themeIcon;
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top bar */}
-      <header className="border-b border-border px-6 py-4 flex items-center justify-between shrink-0">
-        <h1 className="text-xl font-display font-bold text-foreground">Today's Strategy</h1>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground hidden sm:block">{formattedDate}</span>
-          <button
-            onClick={() => navigate("/profile")}
-            className="h-8 w-8 rounded-full overflow-hidden shrink-0 ring-2 ring-transparent hover:ring-primary/50 transition-all"
-          >
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="Profile" className="h-full w-full object-cover" />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center bg-primary text-primary-foreground text-xs font-bold">
-                {displayName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "?"}
-              </div>
-            )}
-          </button>
-          <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground">
-            <LogOut className="h-4 w-4" />
-          </Button>
+      <header className="border-b border-border px-6 py-4 shrink-0">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-display font-bold text-foreground">Today's Strategy</h1>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground hidden sm:block">{formattedDate}</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={cycleTheme} className="text-muted-foreground h-8 w-8">
+                  <ThemeIcon className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p className="text-xs capitalize">{theme} mode</p>
+              </TooltipContent>
+            </Tooltip>
+            <button
+              onClick={() => navigate("/profile")}
+              className="h-8 w-8 rounded-full overflow-hidden shrink-0 ring-2 ring-transparent hover:ring-primary/50 transition-all"
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Profile" className="h-full w-full object-cover" />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center bg-primary text-primary-foreground text-xs font-bold">
+                  {displayName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "?"}
+                </div>
+              )}
+            </button>
+            <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
+        {northStar && (
+          <div className="flex items-center gap-1.5 mt-2">
+            <Star className="h-3.5 w-3.5 text-[hsl(38,92%,50%)]" fill="currentColor" />
+            <span className="text-sm text-muted-foreground">{northStar}</span>
+          </div>
+        )}
       </header>
 
       {/* View toggle + Date nav */}

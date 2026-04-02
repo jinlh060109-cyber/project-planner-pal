@@ -1,5 +1,5 @@
-import { FolderKanban } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { FolderPlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const ProjectsSection = () => {
   return (
@@ -15,18 +15,18 @@ const ProjectsSection = () => {
         Track initiatives and map them to your skills and strategy.
       </p>
 
-      {/* Coming soon placeholder */}
-      <div className="border border-dashed border-border rounded-xl p-6 flex flex-col items-center text-center">
-        <FolderKanban className="h-8 w-8 text-muted-foreground/40 mb-3" />
-        <Badge variant="secondary" className="text-[10px] mb-2">
-          Coming soon
-        </Badge>
-        <h3 className="text-sm font-semibold text-muted-foreground mb-1">
-          Project Tracking
+      {/* Empty state */}
+      <div className="border border-dashed border-border rounded-xl p-8 flex flex-col items-center text-center">
+        <FolderPlus className="h-10 w-10 text-muted-foreground/40 mb-4" />
+        <h3 className="text-lg font-semibold text-foreground mb-1">
+          Create your first project
         </h3>
-        <p className="text-[13px] text-muted-foreground max-w-xs">
-          Link projects to skill profiles and objectives. Track progress and let AI prioritise your tasks across projects.
+        <p className="text-sm text-muted-foreground max-w-xs mb-5">
+          Group related tasks under a project to track progress separately.
         </p>
+        <Button className="rounded-full">
+          New Project
+        </Button>
       </div>
     </section>
   );

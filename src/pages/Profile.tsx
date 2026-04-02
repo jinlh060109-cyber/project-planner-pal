@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Sun, Moon, Monitor } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,47 @@ interface ProfileData {
   north_star: string | null;
   avatar_url: string | null;
 }
+
+const THEME_OPTIONS: { value: "light" | "system" | "dark"; label: string; icon: typeof Sun }[] = [
+  { value: "light", label: "Light", icon: Sun },
+  { value: "system", label: "System", icon: Monitor },
+  { value: "dark", label: "Dark", icon: Moon },
+];
+
+const AppearanceSection = () => {
+  const { theme, setTheme } = useTheme();
+  return (
+    <section className="mb-10">
+      <div className="border-t border-border my-8" />
+      <h2 className="text-sm font-semibold tracking-[0.08em] uppercase text-foreground mb-1">
+        Appearance
+      </h2>
+      <p className="text-xs text-muted-foreground mb-4">
+        Choose how the app looks.
+      </p>
+      <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
+        <span className="text-sm font-medium text-foreground">Theme</span>
+        <div className="inline-flex rounded-lg border border-border p-0.5 bg-muted">
+          {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+            <button
+              key={value}
+              onClick={() => setTheme(value)}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200",
+                theme === value
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const Profile = () => {
   const { user } = useAuth();
@@ -320,6 +362,9 @@ const Profile = () => {
 
         {/* SECTION 5 — Projects */}
         <ProjectsSection />
+
+        {/* SECTION 6 — Appearance */}
+        <AppearanceSection />
 
         {/* SECTION 6 — Footer */}
         <section className="space-y-4">

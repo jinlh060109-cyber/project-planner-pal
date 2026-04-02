@@ -117,9 +117,13 @@ TIEBREAKER RULE: If a task fits multiple quadrants, choose the quadrant whose pr
 
 REASONING RULES — strictly follow these:
 1. Your reasoning MUST reference a specific item from the profile (name the actual strength, weakness, opportunity, or threat).
-2. NEVER mention the north star objective in reasoning.
-3. Reasoning must be exactly 1 sentence. No more.
-4. Start reasoning with the profile item, not the task description.
+2. Reasoning must be exactly 1 sentence. No more.
+3. Start reasoning with the profile item, not the task description.
+
+NORTH STAR CONNECTION RULES:
+1. If the task has a clear connection to the user's north star objective, include a brief objective_connection sentence explaining the link.
+2. If no meaningful connection exists, set objective_connection to null.
+3. Do not force a connection — only include one when it's genuinely relevant.
 
 SKILL MATCHING RULES:
 1. If the task relates to a specific skill profile listed above, return the skill name in matched_skill.
@@ -194,8 +198,14 @@ PRIORITY RULES:
                       description:
                         "One sentence explaining the skill match, or null if none.",
                     },
+                    objective_connection: {
+                      type: "string",
+                      nullable: true,
+                      description:
+                        "One sentence describing how this task connects to the north star objective, or null if no meaningful connection.",
+                    },
                   },
-                  required: ["refined_title", "quadrant", "reasoning", "priority", "matched_skill", "skill_reasoning"],
+                  required: ["refined_title", "quadrant", "reasoning", "priority", "matched_skill", "skill_reasoning", "objective_connection"],
                   additionalProperties: false,
                 },
               },
@@ -243,6 +253,7 @@ PRIORITY RULES:
       priority: string;
       matched_skill: string | null;
       skill_reasoning: string | null;
+      objective_connection: string | null;
     };
     try {
       const toolCall = aiData.choices[0].message.tool_calls[0];
@@ -275,6 +286,7 @@ PRIORITY RULES:
       priority: classification.priority,
       matched_skill: classification.matched_skill || null,
       skill_reasoning: classification.skill_reasoning || null,
+      objective_connection: classification.objective_connection || null,
       is_completed: false,
     };
     // Use client-provided local date if available

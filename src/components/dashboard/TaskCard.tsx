@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, MoreHorizontal, Pencil, Sparkles, Trash2, Loader2 } from "lucide-react";
+import { Check, MoreHorizontal, Pencil, Sparkles, Trash2, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -300,6 +300,14 @@ const TaskCard = ({
                 )}>
                   {task.reasoning}
                 </p>
+              )}
+              {task.objective_connection && (
+                <div className="mt-1.5 flex items-start gap-1.5">
+                  <Star className="h-3.5 w-3.5 text-[hsl(38,92%,50%)] shrink-0 mt-0.5" fill="currentColor" />
+                  <p className="text-[12px] text-muted-foreground italic leading-snug">
+                    {task.objective_connection}
+                  </p>
+                </div>
               )}
             </>
           )}
