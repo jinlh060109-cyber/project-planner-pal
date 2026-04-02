@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, MoreHorizontal, Pencil, Sparkles, Trash2, Loader2 } from "lucide-react";
+import { Check, MoreHorizontal, Pencil, Sparkles, Trash2, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
