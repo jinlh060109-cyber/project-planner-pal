@@ -62,6 +62,7 @@ const Dashboard = () => {
 
   const avatarUrl = profileData?.avatar_url ?? null;
   const displayName = profileData?.display_name ?? null;
+  const northStar = profileData?.north_star ?? null;
 
   // Day view tasks
   const [tasks, setTasks] = useState<Task[]>([]);
