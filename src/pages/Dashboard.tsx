@@ -113,7 +113,7 @@ const Dashboard = () => {
       if (error) {
         toast({ title: "Couldn't load week tasks", variant: "destructive" });
       } else if (data) {
-        setWeekTasks(data.map((d) => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null })) as Task[]);
+        setWeekTasks(data.map((d) => ({ ...d, matched_skill: (d as any).matched_skill ?? null, skill_reasoning: (d as any).skill_reasoning ?? null, objective_connection: (d as any).objective_connection ?? null })) as Task[]);
       }
       setIsWeekLoading(false);
     };
